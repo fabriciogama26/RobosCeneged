@@ -196,7 +196,6 @@ class Apontamento:
     def _preencher_com_sugestao(self, campo_id, texto, suggestion_list_id):
         """Preenche um campo de texto e clica na sugestão correspondente."""
         try:
-
             # Localizar o campo de texto e inserir o texto
             campo_texto = self.wait.until(EC.element_to_be_clickable((By.ID, campo_id)))
             campo_texto.clear()
@@ -204,22 +203,21 @@ class Apontamento:
             self.log(f"Texto '{texto}' inserido no campo '{campo_id}'.")
 
             # Esperar pela lista de sugestões aparecer
-            sugestao = self.wait.until(
-                EC.presence_of_element_located((By.CSS_SELECTOR, f"#{suggestion_list_id} li"))
-            )
-            self.log(f"Texto '{texto}' na lista '{suggestion_list_id}'.")
+            self.wait.until(EC.presence_of_element_located((By.ID, suggestion_list_id)))
+            self.log(f"Sugestão '{texto}' na lista '{suggestion_list_id}'.")
 
-            # Pausa breve
-            sleep(0.5)
-            try:
-                # Clicar na primeira sugestão
-                sugestao.click()
-                self.log(f"Primeira sugestão clicada na lista '{suggestion_list_id}'.")
-            except Exception as e:
-                self.log(f"Erro ao clicar em sugestão: '{texto}', {e}.")
+            # Localizar novamente a sugestão correta antes de clicar
+            sugestoes = self.driver.find_elements(By.CSS_SELECTOR, f"#{suggestion_list_id} li")
+            for sugestao in sugestoes:
+                if texto in sugestao.text:
+                    self.log(f"Localizando sugestão para '{texto}' novamente antes de clicar.")
+                    sugestao.click()
+                    self.log(f"Sugestão '{texto}' clicada com sucesso.")
+                    return
 
-        except TimeoutException:
-            self.log(f"Erro ao preencher ou selecionar a sugestão para o campo '{campo_id}'.")
+            self.log(f"Erro: Sugestão '{texto}' não encontrada na lista '{suggestion_list_id}'.")
+        except Exception as e:
+            self.log(f"Erro ao clicar em sugestão: '{texto}', {e}")
 
     def _preencher_e_confirmar(self, campo, texto):
         """Insere texto em um campo e aguarda para pressionar Enter."""

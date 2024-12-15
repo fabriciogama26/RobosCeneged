@@ -9,6 +9,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
+from selenium.common.exceptions import NoAlertPresentException
 
 # Configurações globais
 CHROMEDRIVER_PATH = "chromedriver-win64\chromedriver.exe"
@@ -25,7 +26,7 @@ class Apontamento:
 
         self.service = Service(CHROMEDRIVER_PATH)
         self.driver = webdriver.Chrome(service=self.service)
-        self.wait = WebDriverWait(self.driver, 20)
+        self.wait = WebDriverWait(self.driver, 50)
         self.log_file = "robo_apontamento_log.txt"
         self._init_log()
 
@@ -70,8 +71,8 @@ class Apontamento:
             self.log("Botão de serviço clicado.")
         except TimeoutException:
             self.log("Botão de serviço não encontrado.")
-            self.driver.quit()
-            exit()
+            # self.driver.quit()
+            # exit()
 
     def _acessar_iframes_lateral(self):
 
@@ -90,22 +91,22 @@ class Apontamento:
             self.driver.switch_to.default_content()  # Voltar ao contexto principal
         except TimeoutException:
             self.log("Erro ao acessar os iframes. Verifique a estrutura da página.")
-            self.driver.quit()
-            exit()
+            # self.driver.quit()
+            # exit()
 
     def _acessar_iframes_central(self):
 
         """Troca para os iframes centrais."""
         try:
-            # Acessar iframe central
+            # Alternar para o contexto padrão antes de acessar o iframe central
+            self.driver.switch_to.default_content()
             iframe_central = self.wait.until(EC.presence_of_element_located((By.ID, "frame_central")))
-            self.driver.implicitly_wait(5)
             self.driver.switch_to.frame(iframe_central)
             self.log("Mudança para o iframe central realizada com sucesso.")
         except Exception as e:
             self.log(f"Mudança para o iframe central erro: {e}.")
-            self.driver.quit()
-            exit()
+            # self.driver.quit()
+            # exit()
 
     def _acessar_iframes_secundarios(self):
         """Acessa os iframes secundários."""
@@ -115,10 +116,8 @@ class Apontamento:
             if self.driver.find_element(By.ID, "frm_down").is_displayed():
                 self.log("Iframe secundário já está ativo.")
 
-                                # Acessar iframe secundário
+                # Acessar iframe secundário
                 iframe_servico = self.wait.until(EC.presence_of_element_located((By.ID, "frm_down")))
-                # Pausa breve
-                self.driver.implicitly_wait(5)
                 self.driver.switch_to.frame(iframe_servico)
                 self.log("Mudança para o iframe lateral realizada com sucesso.")
                 return  
@@ -130,35 +129,36 @@ class Apontamento:
 
     def preencher_cabecalho(self, row):
         try:
-            self._interagir_dropdown("obras_chosen", row["obras_chosen"])
-            # Pausa breve
-            sleep(0.5)
-            self._interagir_dropdown("contrato_chosen", row["contrato_chosen"])
-            # Pausa breve
-            sleep(0.5)
-            self._interagir_dropdown("equipe_chosen", row["equipe_chosen"])
-            # Pausa breve
-            sleep(0.5)
-            self._interagir_dropdown("tip_srv_chosen", row["tip_srv_chosen"])
-            # Pausa breve
-            sleep(0.5)
+                  
             self._preencher_com_sugestao("inputString", row["inputString"], "autoSuggestionsList")
             # Pausa breve
-            sleep(0.8)
+            sleep(0.1)
+            self._interagir_dropdown("contrato_chosen", row["contrato_chosen"])
+            # Pausa breve
+            sleep(0.1)
+            self._interagir_dropdown("equipe_chosen", row["equipe_chosen"])
+            # Pausa breve
+            sleep(0.1)
+            self._interagir_dropdown("tip_srv_chosen", row["tip_srv_chosen"])
+            # Pausa breve
+            sleep(0.1)
+            self._interagir_dropdown("obras_chosen", row["obras_chosen"])
+            # Pausa breve
+            sleep(0.1)
             self._interagir_dropdown("cod_irr_chosen", str(row["cod_irr_chosen"]))
             # Pausa breve
-            sleep(0.5)
+            sleep(0.1)
 
             # Preenchimento de data
             self._preencher_campo_data_hora("dat_srv", row["dat_srv"].strftime("%d/%m/%Y"))
             # Pausa breve
-            sleep(0.5)
+            sleep(0.1)
             self._preencher_campo_data_hora("hr_inic", row["hr_inic"].strftime("%H:%M"))
             # Pausa breve
-            sleep(0.5)
+            sleep(0.1)
             self._preencher_campo_data_hora("dat_srv2", row["dat_srv2"].strftime("%d/%m/%Y"))
             # Pausa breve
-            sleep(0.5)
+            sleep(0.1)
             self._preencher_campo_data_hora("hr_fim", row["hr_fim"].strftime("%H:%M"))
             self.log("Cabeçalho preenchido com sucesso.")
         except Exception as e:
@@ -186,16 +186,17 @@ class Apontamento:
             
             # Preencher o campo com o valor formatado
             self._preencher_campo_data_hora("qtd", valor_qtd)
+
+            # inclui servico
+            apontamento.incluir()
             
         except Exception as e:
             self.log(f"Erro ao preencher os dados: {e}")
-        finally:
-            # inclui servico
-            apontamento.incluir()
 
     def _preencher_com_sugestao(self, campo_id, texto, suggestion_list_id):
         """Preenche um campo de texto e clica na sugestão correspondente."""
         try:
+
             # Localizar o campo de texto e inserir o texto
             campo_texto = self.wait.until(EC.element_to_be_clickable((By.ID, campo_id)))
             campo_texto.clear()
@@ -203,21 +204,22 @@ class Apontamento:
             self.log(f"Texto '{texto}' inserido no campo '{campo_id}'.")
 
             # Esperar pela lista de sugestões aparecer
-            self.wait.until(EC.presence_of_element_located((By.ID, suggestion_list_id)))
-            self.log(f"Sugestão '{texto}' na lista '{suggestion_list_id}'.")
+            sugestao = self.wait.until(
+                EC.presence_of_element_located((By.CSS_SELECTOR, f"#{suggestion_list_id} li"))
+            )
+            self.log(f"Texto '{texto}' na lista '{suggestion_list_id}'.")
 
-            # Localizar novamente a sugestão correta antes de clicar
-            sugestoes = self.driver.find_elements(By.CSS_SELECTOR, f"#{suggestion_list_id} li")
-            for sugestao in sugestoes:
-                if texto in sugestao.text:
-                    self.log(f"Localizando sugestão para '{texto}' novamente antes de clicar.")
-                    sugestao.click()
-                    self.log(f"Sugestão '{texto}' clicada com sucesso.")
-                    return
+            # Pausa breve
+            sleep(0.5)
+            try:
+                # Clicar na primeira sugestão
+                sugestao.click()
+                self.log(f"Primeira sugestão clicada na lista '{suggestion_list_id}'.")
+            except Exception as e:
+                self.log(f"Erro ao clicar em sugestão: '{texto}', {e}.")
 
-            self.log(f"Erro: Sugestão '{texto}' não encontrada na lista '{suggestion_list_id}'.")
-        except Exception as e:
-            self.log(f"Erro ao clicar em sugestão: '{texto}', {e}")
+        except TimeoutException:
+            self.log(f"Erro ao preencher ou selecionar a sugestão para o campo '{campo_id}'.")
 
     def _preencher_e_confirmar(self, campo, texto):
         """Insere texto em um campo e aguarda para pressionar Enter."""
@@ -283,6 +285,7 @@ class Apontamento:
             self.log("WebDriver finalizado com sucesso.")
         except Exception as e:
             self.log(f"Erro ao finalizar o WebDriver: {e}")
+
     def salvar(self):
         """Salva o formulário."""
         try:
@@ -307,12 +310,25 @@ class Apontamento:
             self.log("Erro ao clicar no botão 'Incluir'. Verifique se ele está visível na página.")
 
     def finalizar(self):
+        """Finaliza o ciclo clicando no botão 'finalizar'."""
         try:
-            finalizar = self.wait.until(EC.element_to_be_clickable((By.ID, "idSubmit")))
-            finalizar.click()  
-            self.log("Finalização realizada com sucesso.")
+            # Garantir que estamos no iframe central
+            self._acessar_iframes_central()
+
+            # Localizar e clicar no botão "Finalizar"
+            botao_finalizar = self.wait.until(EC.element_to_be_clickable((By.ID, "idSubmit")))
+            botao_finalizar.click()
+            self.log("Botão 'Finalizar' clicado com sucesso.")
+
+            # Aceitar o alerta automaticamente
+            self.wait.until(EC.alert_is_present())  # Aguarda a presença do alerta
+            self.driver.switch_to.alert.accept()
+            self.log("Alerta aceito automaticamente.")
+
+        except NoAlertPresentException:
+            self.log("Nenhum alerta encontrado ao clicar em finalizar.")
         except Exception as e:
-            self.log(f"Erro ao realizar finalização.{e}")
+            self.log(f"Erro ao finalizar: {e}")
 
     def executar_planilha(self, file_path):
         """Executa as entradas da planilha com base em cabeçalhos e serviços."""
@@ -331,39 +347,44 @@ class Apontamento:
             df = df.where(pd.notnull(df), None)
 
             # Inicializar o cabeçalho anterior como vazio
-            ultimo_cabecalho = None
+            ultimo_cabecalho = []
 
-            # Iterar pelas linhas da planilha
-            for index, row in df.iterrows():
-                # Extrair o cabeçalho atual
-                cabecalho_atual = {col: row[col] for col in colunas_cabecalho}
+                # Iterar pelas linhas da planilha
+            try:
+                for index, row in df.iterrows():
+                    self.log(f"Processando linha {index}...")
+                    # Extrair o cabeçalho atual
+                    cabecalho_atual = {col: row[col] for col in colunas_cabecalho}
 
-                # Verificar se o cabeçalho mudou em relação ao último
-                if cabecalho_atual != ultimo_cabecalho:
-                    # Se não for o primeiro ciclo, finalizar o ciclo anterior
-                    if ultimo_cabecalho is not None:
-                        self._acessar_iframes_central()
-                        self.finalizar()
-                        self.log(f"Ciclo finalizado para o cabeçalho anterior na linha {index - 1}.")
+                    # Verificar se o cabeçalho mudou em relação ao último
+                    if cabecalho_atual != ultimo_cabecalho:
+                        # Se não for o primeiro ciclo, finalizar o ciclo anterior
+                        if ultimo_cabecalho:
+                            self.log(f"Ciclo: {index} para o cabeçalho anterior {index - 1}.")
+                            self.finalizar()
+                            self.log(f"Ciclo finalizado em {index} para o cabeçalho anterior {index - 1}.")
 
-                    # Atualizar o cabeçalho usando a função preencher_cabecalho
-                    self.preencher_cabecalho(row)
-                    ultimo_cabecalho = cabecalho_atual
-                    self.log(f"Novo cabeçalho processado na linha {index}: {cabecalho_atual}")
+                        try:
+                            self.preencher_cabecalho(row)
 
-                # Preencher o serviço correspondente à linha atual
-                self._acessar_iframes_secundarios()  # Certifique-se de que está no iframe correto
-                self.preencher_servico(row)
+                            ultimo_cabecalho = cabecalho_atual
 
-            # Finalizar o último ciclo após o loop
-            self._acessar_iframes_central()
-            self.finalizar()
-            self.log("Último ciclo finalizado com sucesso.")
+                            self.log(f"Novo cabeçalho processado {index}: {cabecalho_atual}")
+                        except Exception as e:
+                            self.log(f"Erro ao preencher o serviço {index}: {e}")
+
+                    # Preencher o serviço correspondente à linha atual
+                    self.preencher_servico(row)
+                    self.log(f"Linha {index} processada com sucesso.")
+            except Exception as e:
+                self.log(f"Erro ao iterar pela planilha: {e}")
+
+                # Finalizar o último ciclo após o loop
+                self.finalizar()
+                self.log("Último ciclo finalizado com sucesso.")
 
         except Exception as e:
             self.log(f"Erro ao processar a planilha: {e}")
-
-
 
 
 # Execução do Script

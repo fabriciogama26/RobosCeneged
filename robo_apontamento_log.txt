@@ -1,29 +1,68 @@
-Log iniciado: 2024-12-15 13:17:09
+Log iniciado: 2024-12-15 15:24:59
 ==================================================
-[2024-12-15 13:17:16] Login realizado com sucesso.
-[2024-12-15 13:17:16] Botão de serviço clicado.
-[2024-12-15 13:17:17] Mudança para o iframe lateral realizada com sucesso.
-[2024-12-15 13:17:17] Itens do menu clicados com sucesso.
-[2024-12-15 13:17:19] Mudança para o iframe central realizada com sucesso.
-[2024-12-15 13:17:20] Dropdown 'obras_chosen' aberto com sucesso.
-[2024-12-15 13:17:20] Texto 'test4' inserido no campo com sucesso.
-[2024-12-15 13:17:20] Confirmação de que o campo contém o texto 'test4'.
-[2024-12-15 13:17:21] Tecla Enter pressionada.
-[2024-12-15 13:17:22] Dropdown 'contrato_chosen' aberto com sucesso.
-[2024-12-15 13:17:22] Texto 'manutenção' inserido no campo com sucesso.
-[2024-12-15 13:17:22] Confirmação de que o campo contém o texto 'manutenção'.
-[2024-12-15 13:17:23] Tecla Enter pressionada.
-[2024-12-15 13:17:23] Dropdown 'equipe_chosen' aberto com sucesso.
-[2024-12-15 13:17:24] Texto 'MT001' inserido no campo com sucesso.
-[2024-12-15 13:17:24] Confirmação de que o campo contém o texto 'MT001'.
-[2024-12-15 13:17:25] Tecla Enter pressionada.
-[2024-12-15 13:17:25] Dropdown 'tip_srv_chosen' aberto com sucesso.
-[2024-12-15 13:17:26] Texto 'manutenção' inserido no campo com sucesso.
-[2024-12-15 13:17:26] Confirmação de que o campo contém o texto 'manutenção'.
-[2024-12-15 13:17:26] Tecla Enter pressionada.
-[2024-12-15 13:17:27] Texto 'Angra dos Reis' inserido no campo 'inputString'.
-[2024-12-15 13:17:27] Texto 'Angra dos Reis' na lista 'autoSuggestionsList'.
-[2024-12-15 13:17:28] Erro ao clicar em sugestão: 'Angra dos Reis', Message: stale element reference: stale element not found in the current frame
+[2024-12-15 15:25:08] Login realizado com sucesso.
+[2024-12-15 15:25:08] Botão de serviço clicado.
+[2024-12-15 15:25:09] Mudança para o iframe lateral realizada com sucesso.
+[2024-12-15 15:25:09] Itens do menu clicados com sucesso.
+[2024-12-15 15:25:11] Mudança para o iframe central realizada com sucesso.
+[2024-12-15 15:25:11] Processando linha 0...
+[2024-12-15 15:25:12] Texto 'Angra dos Reis' inserido no campo 'inputString'.
+[2024-12-15 15:25:12] Texto 'Angra dos Reis' na lista 'autoSuggestionsList'.
+[2024-12-15 15:25:13] Primeira sugestão clicada na lista 'autoSuggestionsList'.
+[2024-12-15 15:25:13] Dropdown 'contrato_chosen' aberto com sucesso.
+[2024-12-15 15:25:14] Texto 'manutenção' inserido no campo com sucesso.
+[2024-12-15 15:25:14] Confirmação de que o campo contém o texto 'manutenção'.
+[2024-12-15 15:25:15] Tecla Enter pressionada.
+[2024-12-15 15:25:15] Dropdown 'equipe_chosen' aberto com sucesso.
+[2024-12-15 15:25:16] Texto 'MT001' inserido no campo com sucesso.
+[2024-12-15 15:25:16] Confirmação de que o campo contém o texto 'MT001'.
+[2024-12-15 15:25:16] Tecla Enter pressionada.
+[2024-12-15 15:25:17] Dropdown 'tip_srv_chosen' aberto com sucesso.
+[2024-12-15 15:25:18] Texto 'manutenção' inserido no campo com sucesso.
+[2024-12-15 15:25:18] Confirmação de que o campo contém o texto 'manutenção'.
+[2024-12-15 15:25:18] Tecla Enter pressionada.
+[2024-12-15 15:25:19] Dropdown 'obras_chosen' aberto com sucesso.
+[2024-12-15 15:25:20] Texto 'test4' inserido no campo com sucesso.
+[2024-12-15 15:25:20] Confirmação de que o campo contém o texto 'test4'.
+[2024-12-15 15:25:20] Tecla Enter pressionada.
+[2024-12-15 15:25:21] Dropdown 'cod_irr_chosen' aberto com sucesso.
+[2024-12-15 15:25:22] Texto '801' inserido no campo com sucesso.
+[2024-12-15 15:25:22] Confirmação de que o campo contém o texto '801'.
+[2024-12-15 15:25:22] Tecla Enter pressionada.
+[2024-12-15 15:25:23] Campo 'dat_srv' preenchido com valor '13/12/2024'.
+[2024-12-15 15:25:23] Campo 'hr_inic' preenchido com valor '08:00'.
+[2024-12-15 15:25:24] Campo 'dat_srv2' preenchido com valor '13/12/2024'.
+[2024-12-15 15:25:25] Campo 'hr_fim' preenchido com valor '17:00'.
+[2024-12-15 15:25:25] Cabeçalho preenchido com sucesso.
+[2024-12-15 15:25:26] Formulário salvo com sucesso.
+[2024-12-15 15:25:26] Tentando acessar o iframe secundário...
+[2024-12-15 15:25:26] Iframe secundário já está ativo.
+[2024-12-15 15:25:26] Mudança para o iframe lateral realizada com sucesso.
+[2024-12-15 15:25:26] Novo cabeçalho processado 0: {'obras_chosen': 'test4', 'contrato_chosen': 'manutenção', 'equipe_chosen': 'MT001', 'tip_srv_chosen': 'manutenção', 'inputString': 'Angra dos Reis', 'cod_irr_chosen': 801, 'dat_srv': Timestamp('2024-12-13 00:00:00'), 'hr_inic': datetime.time(8, 0), 'dat_srv2': Timestamp('2024-12-13 00:00:00'), 'hr_fim': datetime.time(17, 0)}
+[2024-12-15 15:25:26] Dropdown 'serv_chosen' aberto com sucesso.
+[2024-12-15 15:25:27] Texto '3006933' inserido no campo com sucesso.
+[2024-12-15 15:25:27] Confirmação de que o campo contém o texto '3006933'.
+[2024-12-15 15:25:27] Tecla Enter pressionada.
+[2024-12-15 15:25:27] Campo 'qtd' preenchido com valor '3.00'.
+[2024-12-15 15:25:28] Botão 'Incluir' clicado com sucesso.
+[2024-12-15 15:25:28] Linha 0 processada com sucesso.
+[2024-12-15 15:25:28] Processando linha 1...
+[2024-12-15 15:25:29] Dropdown 'serv_chosen' aberto com sucesso.
+[2024-12-15 15:25:29] Texto '3006931' inserido no campo com sucesso.
+[2024-12-15 15:25:29] Confirmação de que o campo contém o texto '3006931'.
+[2024-12-15 15:25:30] Tecla Enter pressionada.
+[2024-12-15 15:25:30] Campo 'qtd' preenchido com valor '4.00'.
+[2024-12-15 15:25:31] Botão 'Incluir' clicado com sucesso.
+[2024-12-15 15:25:31] Linha 1 processada com sucesso.
+[2024-12-15 15:25:31] Processando linha 2...
+[2024-12-15 15:25:31] Ciclo: 2 para o cabeçalho anterior 1.
+[2024-12-15 15:25:31] Mudança para o iframe central realizada com sucesso.
+[2024-12-15 15:25:32] Botão 'Finalizar' clicado com sucesso.
+[2024-12-15 15:25:32] Alerta aceito automaticamente.
+[2024-12-15 15:25:32] Ciclo finalizado em 2 para o cabeçalho anterior 1.
+[2024-12-15 15:25:32] Texto 'engenheiro paulo frontin' inserido no campo 'inputString'.
+[2024-12-15 15:25:33] Texto 'engenheiro paulo frontin' na lista 'autoSuggestionsList'.
+[2024-12-15 15:25:33] Erro ao clicar em sugestão: 'engenheiro paulo frontin', Message: stale element reference: stale element not found in the current frame
   (Session info: chrome=131.0.6778.140); For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#stale-element-reference-exception
 Stacktrace:
 	GetHandleVerifier [0x00007FF6C6E66CC5+28821]
@@ -52,39 +91,40 @@ Stacktrace:
 	BaseThreadInitThunk [0x00007FFF9A947374+20]
 	RtlUserThreadStart [0x00007FFF9C6FCC91+33]
 .
-[2024-12-15 13:17:29] Dropdown 'cod_irr_chosen' aberto com sucesso.
-[2024-12-15 13:17:30] Texto '801' inserido no campo com sucesso.
-[2024-12-15 13:17:30] Confirmação de que o campo contém o texto '801'.
-[2024-12-15 13:17:30] Tecla Enter pressionada.
-[2024-12-15 13:17:31] Campo 'dat_srv' preenchido com valor '13/12/2024'.
-[2024-12-15 13:17:31] Campo 'hr_inic' preenchido com valor '08:00'.
-[2024-12-15 13:17:32] Campo 'dat_srv2' preenchido com valor '13/12/2024'.
-[2024-12-15 13:17:32] Campo 'hr_fim' preenchido com valor '17:00'.
-[2024-12-15 13:17:32] Cabeçalho preenchido com sucesso.
-[2024-12-15 13:17:33] Formulário salvo com sucesso.
-[2024-12-15 13:17:33] Tentando acessar o iframe secundário...
-[2024-12-15 13:17:38] Erro ao processar a planilha: Message: no such element: Unable to locate element: {"method":"css selector","selector":"[id="frm_down"]"}
-  (Session info: chrome=131.0.6778.140); For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#no-such-element-exception
-Stacktrace:
-	GetHandleVerifier [0x00007FF6C6E66CC5+28821]
-	(No symbol) [0x00007FF6C6DD3850]
-	(No symbol) [0x00007FF6C6C7578A]
-	(No symbol) [0x00007FF6C6CC91BE]
-	(No symbol) [0x00007FF6C6CC94AC]
-	(No symbol) [0x00007FF6C6D12647]
-	(No symbol) [0x00007FF6C6CEF33F]
-	(No symbol) [0x00007FF6C6D0F412]
-	(No symbol) [0x00007FF6C6CEF0A3]
-	(No symbol) [0x00007FF6C6CBA778]
-	(No symbol) [0x00007FF6C6CBB8E1]
-	GetHandleVerifier [0x00007FF6C719FCCD+3408029]
-	GetHandleVerifier [0x00007FF6C71B743F+3504143]
-	GetHandleVerifier [0x00007FF6C71AB61D+3455469]
-	GetHandleVerifier [0x00007FF6C6F2BDCB+835995]
-	(No symbol) [0x00007FF6C6DDEB6F]
-	(No symbol) [0x00007FF6C6DDA824]
-	(No symbol) [0x00007FF6C6DDA9BD]
-	(No symbol) [0x00007FF6C6DCA1A9]
-	BaseThreadInitThunk [0x00007FFF9A947374+20]
-	RtlUserThreadStart [0x00007FFF9C6FCC91+33]
-
+[2024-12-15 15:25:34] Dropdown 'contrato_chosen' aberto com sucesso.
+[2024-12-15 15:25:34] Texto 'expansão' inserido no campo com sucesso.
+[2024-12-15 15:25:34] Confirmação de que o campo contém o texto 'expansão'.
+[2024-12-15 15:25:35] Tecla Enter pressionada.
+[2024-12-15 15:25:36] Dropdown 'equipe_chosen' aberto com sucesso.
+[2024-12-15 15:25:36] Texto 'MT002' inserido no campo com sucesso.
+[2024-12-15 15:25:36] Confirmação de que o campo contém o texto 'MT002'.
+[2024-12-15 15:25:37] Tecla Enter pressionada.
+[2024-12-15 15:25:37] Dropdown 'tip_srv_chosen' aberto com sucesso.
+[2024-12-15 15:25:38] Texto 'expansão' inserido no campo com sucesso.
+[2024-12-15 15:25:38] Confirmação de que o campo contém o texto 'expansão'.
+[2024-12-15 15:25:39] Tecla Enter pressionada.
+[2024-12-15 15:25:39] Dropdown 'obras_chosen' aberto com sucesso.
+[2024-12-15 15:25:40] Texto 'teste3' inserido no campo com sucesso.
+[2024-12-15 15:25:40] Confirmação de que o campo contém o texto 'teste3'.
+[2024-12-15 15:25:40] Tecla Enter pressionada.
+[2024-12-15 15:25:41] Dropdown 'cod_irr_chosen' aberto com sucesso.
+[2024-12-15 15:25:42] Texto '801' inserido no campo com sucesso.
+[2024-12-15 15:25:42] Confirmação de que o campo contém o texto '801'.
+[2024-12-15 15:25:43] Tecla Enter pressionada.
+[2024-12-15 15:25:43] Campo 'dat_srv' preenchido com valor '14/12/2024'.
+[2024-12-15 15:25:44] Campo 'hr_inic' preenchido com valor '08:00'.
+[2024-12-15 15:25:44] Campo 'dat_srv2' preenchido com valor '14/12/2024'.
+[2024-12-15 15:25:45] Campo 'hr_fim' preenchido com valor '17:00'.
+[2024-12-15 15:25:45] Cabeçalho preenchido com sucesso.
+[2024-12-15 15:25:46] Formulário salvo com sucesso.
+[2024-12-15 15:25:46] Tentando acessar o iframe secundário...
+[2024-12-15 15:25:46] Iframe secundário já está ativo.
+[2024-12-15 15:25:46] Mudança para o iframe lateral realizada com sucesso.
+[2024-12-15 15:25:46] Novo cabeçalho processado 2: {'obras_chosen': 'teste3', 'contrato_chosen': 'expansão', 'equipe_chosen': 'MT002', 'tip_srv_chosen': 'expansão', 'inputString': 'engenheiro paulo frontin', 'cod_irr_chosen': 801, 'dat_srv': Timestamp('2024-12-14 00:00:00'), 'hr_inic': datetime.time(8, 0), 'dat_srv2': Timestamp('2024-12-14 00:00:00'), 'hr_fim': datetime.time(17, 0)}
+[2024-12-15 15:25:46] Dropdown 'serv_chosen' aberto com sucesso.
+[2024-12-15 15:25:47] Texto '3006940' inserido no campo com sucesso.
+[2024-12-15 15:25:47] Confirmação de que o campo contém o texto '3006940'.
+[2024-12-15 15:25:47] Tecla Enter pressionada.
+[2024-12-15 15:25:47] Campo 'qtd' preenchido com valor '2.00'.
+[2024-12-15 15:25:48] Botão 'Incluir' clicado com sucesso.
+[2024-12-15 15:25:48] Linha 2 processada com sucesso.

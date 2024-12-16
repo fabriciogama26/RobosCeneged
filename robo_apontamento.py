@@ -1,8 +1,10 @@
 from selenium import webdriver
 from datetime import datetime
+import pymsgbox
 import pandas as pd
 from time import sleep
 from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.support.ui import Select
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.support.ui import WebDriverWait
@@ -21,8 +23,10 @@ class Apontamento:
     def __init__(self):
         """Inicializa o driver e configurações do navegador."""
         chrome_options = Options()
-        chrome_options.add_argument("--start-maximized")  # Abre o navegador maximizado
         chrome_options.add_experimental_option("detach", True)  # Mantém o navegador aberto
+        chrome_options.add_argument("--disable-infobars")  # Remove barra de informações
+        chrome_options.add_argument("--disable-notifications")  # Desabilita notificações
+        chrome_options.add_argument("--start-maximized")  # Tenta iniciar maximizado
 
         self.service = Service(CHROMEDRIVER_PATH)
         self.driver = webdriver.Chrome(service=self.service)
@@ -48,6 +52,10 @@ class Apontamento:
             print(log_message)  # Também imprime no console
             self._last_log_message = log_message
 
+    def alerta_mensagem(mensagem):
+        """Exibe uma mensagem de alerta usando pymsgbox."""
+        pymsgbox.alert(mensagem, "Alerta")
+
     def login(self):
         """Realiza o login no site."""
         try:
@@ -62,17 +70,13 @@ class Apontamento:
             exit()
 
     def botao_serviço(self):
-
         """ Clicar no botão de serviço """
         try:
-            self.driver.implicitly_wait(5)
             # Clicar no botão de serviço
             self.wait.until(EC.element_to_be_clickable((By.ID, "2000"))).click()
             self.log("Botão de serviço clicado.")
         except TimeoutException:
             self.log("Botão de serviço não encontrado.")
-            # self.driver.quit()
-            # exit()
 
     def _acessar_iframes_lateral(self):
 
@@ -105,8 +109,6 @@ class Apontamento:
             self.log("Mudança para o iframe central realizada com sucesso.")
         except Exception as e:
             self.log(f"Mudança para o iframe central erro: {e}.")
-            # self.driver.quit()
-            # exit()
 
     def _acessar_iframes_secundarios(self):
         """Acessa os iframes secundários."""
@@ -132,7 +134,7 @@ class Apontamento:
                   
             self._preencher_com_sugestao("inputString", row["inputString"], "autoSuggestionsList")
             # Pausa breve
-            sleep(0.1)
+            sleep(0.5)
             self._interagir_dropdown("contrato_chosen", row["contrato_chosen"])
             # Pausa breve
             sleep(0.1)
@@ -163,8 +165,6 @@ class Apontamento:
             self.log("Cabeçalho preenchido com sucesso.")
         except Exception as e:
             self.log(f"Erro ao preencher o cabeçalho: {e}")
-            self.driver.quit()
-            exit()
         finally:
             # salvar
             apontamento.salvar()
@@ -194,32 +194,32 @@ class Apontamento:
             self.log(f"Erro ao preencher os dados: {e}")
 
     def _preencher_com_sugestao(self, campo_id, texto, suggestion_list_id):
-        """Preenche um campo de texto e clica na sugestão correspondente."""
+        """Preenche um campo de texto e clica na sugestão correspondente usando XPath."""
         try:
-
             # Localizar o campo de texto e inserir o texto
             campo_texto = self.wait.until(EC.element_to_be_clickable((By.ID, campo_id)))
             campo_texto.clear()
             campo_texto.send_keys(texto)
             self.log(f"Texto '{texto}' inserido no campo '{campo_id}'.")
 
-            # Esperar pela lista de sugestões aparecer
-            sugestao = self.wait.until(
-                EC.presence_of_element_located((By.CSS_SELECTOR, f"#{suggestion_list_id} li"))
-            )
-            self.log(f"Texto '{texto}' na lista '{suggestion_list_id}'.")
+            # Construir XPath diretamente
+            xpath = f"//*[@id='{suggestion_list_id}']"
+            sugestoes = self.wait.until(EC.presence_of_all_elements_located((By.XPATH, xpath)))
 
-            # Pausa breve
-            sleep(0.5)
-            try:
-                # Clicar na primeira sugestão
-                sugestao.click()
-                self.log(f"Primeira sugestão clicada na lista '{suggestion_list_id}'.")
-            except Exception as e:
-                self.log(f"Erro ao clicar em sugestão: '{texto}', {e}.")
+            self.log(f"Lista de sugestões carregada: {len(sugestoes)} itens encontrados.")
+            sleep(0.1)
+            # Clicar na primeira sugestão
+            primeira_sugestao = sugestoes[0]
+            texto_primeira_sugestao = primeira_sugestao.text.strip()
+            self.log(f"Texto da primeira sugestão: '{texto_primeira_sugestao}'.")
+            sleep(0.1)
+            primeira_sugestao.click()
+            self.log(f"Sugestão '{texto_primeira_sugestao}' clicada com sucesso via XPath.")
 
         except TimeoutException:
-            self.log(f"Erro ao preencher ou selecionar a sugestão para o campo '{campo_id}'.")
+            self.log(f"Erro: Tempo limite ao preencher ou selecionar a sugestão no campo '{campo_id}'.")
+        except Exception as e:
+            self.log(f"Erro inesperado ao processar a sugestão: {e}")
 
     def _preencher_e_confirmar(self, campo, texto):
         """Insere texto em um campo e aguarda para pressionar Enter."""
@@ -237,11 +237,12 @@ class Apontamento:
             self.wait.until(lambda driver: texto.lower() in campo.get_attribute("value").lower())
             self.log(f"Confirmação de que o campo contém o texto '{texto}'.")
 
-            # Pausa breve
-            sleep(0.5)
-            
             # Pressionar Enter
             campo.send_keys(Keys.ENTER)
+
+            # Pausa breve
+            sleep(0.3)
+            
             self.log("Tecla Enter pressionada.")
         except TimeoutException:
             self.log(f"Erro ao inserir e confirmar o texto '{texto}'.")
@@ -249,7 +250,6 @@ class Apontamento:
     def _interagir_dropdown(self, dropdown_id, texto):
         """Interage com um dropdown customizado."""
         try:
-
 
             # Abre o dropdown
             dropdown = self.wait.until(EC.element_to_be_clickable((By.ID, dropdown_id)))
@@ -280,7 +280,6 @@ class Apontamento:
     def fechar(self):
         """Finaliza o WebDriver."""
         try:
-            input("aperte enter")
             self.driver.quit()
             self.log("WebDriver finalizado com sucesso.")
         except Exception as e:
@@ -320,15 +319,20 @@ class Apontamento:
             botao_finalizar.click()
             self.log("Botão 'Finalizar' clicado com sucesso.")
 
+            self._alerta_auto()
+            
+        except Exception as e:
+            self.log(f"Erro ao finalizar: {e}")
+
+    def _alerta_auto(self):
+        """Fecha os alertas automaticamente."""
+        try:
             # Aceitar o alerta automaticamente
             self.wait.until(EC.alert_is_present())  # Aguarda a presença do alerta
             self.driver.switch_to.alert.accept()
-            self.log("Alerta aceito automaticamente.")
-
+            self.log("Alerta e concluido aceito automaticamente.")
         except NoAlertPresentException:
-            self.log("Nenhum alerta encontrado ao clicar em finalizar.")
-        except Exception as e:
-            self.log(f"Erro ao finalizar: {e}")
+            self.log("Nenhum alerta encontrado ao clicar em finalizar.")    
 
     def executar_planilha(self, file_path):
         """Executa as entradas da planilha com base em cabeçalhos e serviços."""
@@ -379,13 +383,11 @@ class Apontamento:
             except Exception as e:
                 self.log(f"Erro ao iterar pela planilha: {e}")
 
-                # Finalizar o último ciclo após o loop
-                self.finalizar()
-                self.log("Último ciclo finalizado com sucesso.")
-
+            # Finalizar o último ciclo após o loop
+            self.finalizar()
+            self.log("Último ciclo finalizado com sucesso.")
         except Exception as e:
             self.log(f"Erro ao processar a planilha: {e}")
-
 
 # Execução do Script
 if __name__ == "__main__":

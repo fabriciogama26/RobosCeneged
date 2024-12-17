@@ -1,10 +1,8 @@
 from selenium import webdriver
 from datetime import datetime
-import pymsgbox
 import pandas as pd
 from time import sleep
 from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.support.ui import Select
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.support.ui import WebDriverWait
@@ -12,6 +10,8 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
 from selenium.common.exceptions import NoAlertPresentException
+from openpyxl import load_workbook
+from openpyxl.utils.dataframe import dataframe_to_rows
 
 # Configurações globais
 CHROMEDRIVER_PATH = "chromedriver-win64\chromedriver.exe"
@@ -52,10 +52,6 @@ class Apontamento:
             print(log_message)  # Também imprime no console
             self._last_log_message = log_message
 
-    def alerta_mensagem(mensagem):
-        """Exibe uma mensagem de alerta usando pymsgbox."""
-        pymsgbox.alert(mensagem, "Alerta")
-
     def login(self):
         """Realiza o login no site."""
         try:
@@ -79,7 +75,6 @@ class Apontamento:
             self.log("Botão de serviço não encontrado.")
 
     def _acessar_iframes_lateral(self):
-
         """Troca para os iframes laterais."""
         try:
             # Acessar iframe lateral
@@ -99,7 +94,6 @@ class Apontamento:
             # exit()
 
     def _acessar_iframes_central(self):
-
         """Troca para os iframes centrais."""
         try:
             # Alternar para o contexto padrão antes de acessar o iframe central
@@ -332,13 +326,50 @@ class Apontamento:
             self.driver.switch_to.alert.accept()
             self.log("Alerta e concluido aceito automaticamente.")
         except NoAlertPresentException:
-            self.log("Nenhum alerta encontrado ao clicar em finalizar.")    
+            self.log("Nenhum alerta encontrado ao clicar em finalizar.") 
+
+    def salvar_planilha_com_formatacao(self, df, file_path):
+        """
+        Salva a planilha mantendo a formatação de data/hora.
+        """
+        try:
+            # Carregar a planilha existente
+            workbook = load_workbook(file_path)
+            sheet = workbook.active
+
+            # Limpar os dados antigos
+            sheet.delete_rows(2, sheet.max_row)
+
+            # Adicionar os dados do DataFrame (excluindo o cabeçalho)
+            for row in dataframe_to_rows(df, index=False, header=False):  # header=False evita duplicar o cabeçalho
+                sheet.append(row)
+
+            # Ajustar formatação para colunas de data/hora (exemplo: colunas 7, 8, 9, 10)
+            for col in [7, 8, 9, 10]:  # Substitua pelas colunas de data/hora no índice correto
+                for cell in sheet.iter_cols(min_col=col, max_col=col, min_row=2):
+                    for c in cell:
+                        c.number_format = 'DD/MM/YYYY' if col in [7, 9] else 'HH:MM'
+
+            # Salvar novamente
+            workbook.save(file_path)
+            self.log("Planilha salva mantendo a formatação de data/hora.")
+
+        except Exception as e:
+            self.log(f"Erro ao salvar planilha mantendo a formatação: {e}")   
 
     def executar_planilha(self, file_path):
         """Executa as entradas da planilha com base em cabeçalhos e serviços."""
         try:
             # Carregar a planilha
             df = pd.read_excel(file_path)
+
+            # Verificar se a coluna 'status' existe
+            if 'status' not in df.columns:
+                self.log("Erro: A planilha não possui a coluna 'status'.")
+                return
+
+            # Garantir que a coluna 'status' existe e preencher com None, caso esteja vazia
+            df['status'] = df['status'].fillna('')
 
             # Definir as colunas de cabeçalho
             colunas_cabecalho = [
@@ -347,16 +378,18 @@ class Apontamento:
                 "dat_srv", "hr_inic", "dat_srv2", "hr_fim"
             ]
 
-            # Normalizar os dados da planilha (substituir NaN por None)
-            df = df.where(pd.notnull(df), None)
-
             # Inicializar o cabeçalho anterior como vazio
             ultimo_cabecalho = []
 
-                # Iterar pelas linhas da planilha
+            # Iterar pelas linhas da planilha
             try:
                 for index, row in df.iterrows():
+                    # Verificar se o status é 'ok'; se sim, pula a linha
+                    if row['status'] == 'ok':
+                        continue
+
                     self.log(f"Processando linha {index}...")
+
                     # Extrair o cabeçalho atual
                     cabecalho_atual = {col: row[col] for col in colunas_cabecalho}
 
@@ -370,22 +403,34 @@ class Apontamento:
 
                         try:
                             self.preencher_cabecalho(row)
-
                             ultimo_cabecalho = cabecalho_atual
-
                             self.log(f"Novo cabeçalho processado {index}: {cabecalho_atual}")
                         except Exception as e:
-                            self.log(f"Erro ao preencher o serviço {index}: {e}")
+                            self.log(f"Erro ao preencher o cabeçalho na linha {index}: {e}")
+                            continue  # Pula para a próxima linha em caso de erro
 
                     # Preencher o serviço correspondente à linha atual
-                    self.preencher_servico(row)
-                    self.log(f"Linha {index} processada com sucesso.")
+                    try:
+                        self.preencher_servico(row)
+                        self.log(f"Linha {index} processada com sucesso.")
+
+                        # Atualizar o status para 'ok'
+                        df.at[index, 'status'] = 'ok'
+                    except Exception as e:
+                        self.log(f"Erro ao preencher o serviço na linha {index}: {e}")
+                        continue
+
             except Exception as e:
                 self.log(f"Erro ao iterar pela planilha: {e}")
 
             # Finalizar o último ciclo após o loop
             self.finalizar()
             self.log("Último ciclo finalizado com sucesso.")
+
+            # Salvar a planilha atualizada
+            self.salvar_planilha_com_formatacao(df, file_path)
+            self.log("Planilha atualizada com status 'ok'.")
+
         except Exception as e:
             self.log(f"Erro ao processar a planilha: {e}")
 
@@ -397,7 +442,7 @@ if __name__ == "__main__":
         apontamento.botao_serviço()
         apontamento._acessar_iframes_lateral()
         apontamento._acessar_iframes_central()
-        apontamento.executar_planilha("dados_apontamento.xlsx")
+        apontamento.executar_planilha("dados_apontamento teste.xlsx")
     except Exception as e:
         apontamento.log(f"Erro inesperado: {e}")
     finally:

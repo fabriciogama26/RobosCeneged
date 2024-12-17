@@ -1,110 +1,104 @@
-Log iniciado: 2024-12-15 21:49:59
+Log iniciado: 2024-12-16 20:56:02
 ==================================================
-[2024-12-15 21:50:05] Login realizado com sucesso.
-[2024-12-15 21:50:05] Botão de serviço clicado.
-[2024-12-15 21:50:06] Mudança para o iframe lateral realizada com sucesso.
-[2024-12-15 21:50:06] Itens do menu clicados com sucesso.
-[2024-12-15 21:50:09] Mudança para o iframe central realizada com sucesso.
-[2024-12-15 21:50:09] Processando linha 0...
-[2024-12-15 21:50:09] Texto 'Angra dos Reis' inserido no campo 'inputString'.
-[2024-12-15 21:50:09] Lista de sugestões carregada: 1 itens encontrados.
-[2024-12-15 21:50:09] Texto da primeira sugestão: ''.
-[2024-12-15 21:50:11] Sugestão '' clicada com sucesso via XPath.
-[2024-12-15 21:50:11] Dropdown 'contrato_chosen' aberto com sucesso.
-[2024-12-15 21:50:12] Texto 'manutenção' inserido no campo com sucesso.
-[2024-12-15 21:50:12] Confirmação de que o campo contém o texto 'manutenção'.
-[2024-12-15 21:50:12] Tecla Enter pressionada.
-[2024-12-15 21:50:12] Dropdown 'equipe_chosen' aberto com sucesso.
-[2024-12-15 21:50:13] Texto 'MT001' inserido no campo com sucesso.
-[2024-12-15 21:50:13] Confirmação de que o campo contém o texto 'MT001'.
-[2024-12-15 21:50:13] Tecla Enter pressionada.
-[2024-12-15 21:50:14] Dropdown 'tip_srv_chosen' aberto com sucesso.
-[2024-12-15 21:50:14] Texto 'manutenção' inserido no campo com sucesso.
-[2024-12-15 21:50:14] Confirmação de que o campo contém o texto 'manutenção'.
-[2024-12-15 21:50:15] Tecla Enter pressionada.
-[2024-12-15 21:50:15] Dropdown 'obras_chosen' aberto com sucesso.
-[2024-12-15 21:50:15] Texto 'test4' inserido no campo com sucesso.
-[2024-12-15 21:50:15] Confirmação de que o campo contém o texto 'test4'.
-[2024-12-15 21:50:16] Tecla Enter pressionada.
-[2024-12-15 21:50:16] Dropdown 'cod_irr_chosen' aberto com sucesso.
-[2024-12-15 21:50:17] Texto '801' inserido no campo com sucesso.
-[2024-12-15 21:50:17] Confirmação de que o campo contém o texto '801'.
-[2024-12-15 21:50:17] Tecla Enter pressionada.
-[2024-12-15 21:50:17] Campo 'dat_srv' preenchido com valor '13/12/2024'.
-[2024-12-15 21:50:17] Campo 'hr_inic' preenchido com valor '08:00'.
-[2024-12-15 21:50:17] Campo 'dat_srv2' preenchido com valor '13/12/2024'.
-[2024-12-15 21:50:17] Campo 'hr_fim' preenchido com valor '17:00'.
-[2024-12-15 21:50:17] Cabeçalho preenchido com sucesso.
-[2024-12-15 21:50:19] Formulário salvo com sucesso.
-[2024-12-15 21:50:19] Tentando acessar o iframe secundário...
-[2024-12-15 21:50:19] Iframe secundário já está ativo.
-[2024-12-15 21:50:19] Mudança para o iframe lateral realizada com sucesso.
-[2024-12-15 21:50:19] Novo cabeçalho processado 0: {'obras_chosen': 'test4', 'contrato_chosen': 'manutenção', 'equipe_chosen': 'MT001', 'tip_srv_chosen': 'manutenção', 'inputString': 'Angra dos Reis', 'cod_irr_chosen': 801, 'dat_srv': Timestamp('2024-12-13 00:00:00'), 'hr_inic': datetime.time(8, 0), 'dat_srv2': Timestamp('2024-12-13 00:00:00'), 'hr_fim': datetime.time(17, 0)}
-[2024-12-15 21:50:19] Dropdown 'serv_chosen' aberto com sucesso.
-[2024-12-15 21:50:20] Texto '3006933' inserido no campo com sucesso.
-[2024-12-15 21:50:20] Confirmação de que o campo contém o texto '3006933'.
-[2024-12-15 21:50:20] Tecla Enter pressionada.
-[2024-12-15 21:50:20] Campo 'qtd' preenchido com valor '3.00'.
-[2024-12-15 21:50:22] Botão 'Incluir' clicado com sucesso.
-[2024-12-15 21:50:22] Linha 0 processada com sucesso.
-[2024-12-15 21:50:22] Processando linha 1...
-[2024-12-15 21:50:22] Dropdown 'serv_chosen' aberto com sucesso.
-[2024-12-15 21:50:22] Texto '3006931' inserido no campo com sucesso.
-[2024-12-15 21:50:22] Confirmação de que o campo contém o texto '3006931'.
-[2024-12-15 21:50:23] Tecla Enter pressionada.
-[2024-12-15 21:50:23] Campo 'qtd' preenchido com valor '4.00'.
-[2024-12-15 21:50:24] Botão 'Incluir' clicado com sucesso.
-[2024-12-15 21:50:24] Linha 1 processada com sucesso.
-[2024-12-15 21:50:24] Processando linha 2...
-[2024-12-15 21:50:24] Ciclo: 2 para o cabeçalho anterior 1.
-[2024-12-15 21:50:24] Mudança para o iframe central realizada com sucesso.
-[2024-12-15 21:50:26] Botão 'Finalizar' clicado com sucesso.
-[2024-12-15 21:50:26] Alerta aceito automaticamente.
-[2024-12-15 21:50:26] Ciclo finalizado em 2 para o cabeçalho anterior 1.
-[2024-12-15 21:50:27] Texto 'engenheiro paulo frontin' inserido no campo 'inputString'.
-[2024-12-15 21:50:27] Lista de sugestões carregada: 1 itens encontrados.
-[2024-12-15 21:50:27] Texto da primeira sugestão: ''.
-[2024-12-15 21:50:28] Sugestão '' clicada com sucesso via XPath.
-[2024-12-15 21:50:29] Dropdown 'contrato_chosen' aberto com sucesso.
-[2024-12-15 21:50:29] Texto 'expansão' inserido no campo com sucesso.
-[2024-12-15 21:50:29] Confirmação de que o campo contém o texto 'expansão'.
-[2024-12-15 21:50:30] Tecla Enter pressionada.
-[2024-12-15 21:50:30] Dropdown 'equipe_chosen' aberto com sucesso.
-[2024-12-15 21:50:31] Texto 'MT002' inserido no campo com sucesso.
-[2024-12-15 21:50:31] Confirmação de que o campo contém o texto 'MT002'.
-[2024-12-15 21:50:31] Tecla Enter pressionada.
-[2024-12-15 21:50:31] Dropdown 'tip_srv_chosen' aberto com sucesso.
-[2024-12-15 21:50:32] Texto 'expansão' inserido no campo com sucesso.
-[2024-12-15 21:50:32] Confirmação de que o campo contém o texto 'expansão'.
-[2024-12-15 21:50:32] Tecla Enter pressionada.
-[2024-12-15 21:50:32] Dropdown 'obras_chosen' aberto com sucesso.
-[2024-12-15 21:50:33] Texto 'teste3' inserido no campo com sucesso.
-[2024-12-15 21:50:33] Confirmação de que o campo contém o texto 'teste3'.
-[2024-12-15 21:50:33] Tecla Enter pressionada.
-[2024-12-15 21:50:34] Dropdown 'cod_irr_chosen' aberto com sucesso.
-[2024-12-15 21:50:34] Texto '801' inserido no campo com sucesso.
-[2024-12-15 21:50:34] Confirmação de que o campo contém o texto '801'.
-[2024-12-15 21:50:35] Tecla Enter pressionada.
-[2024-12-15 21:50:35] Campo 'dat_srv' preenchido com valor '14/12/2024'.
-[2024-12-15 21:50:35] Campo 'hr_inic' preenchido com valor '08:00'.
-[2024-12-15 21:50:35] Campo 'dat_srv2' preenchido com valor '14/12/2024'.
-[2024-12-15 21:50:35] Campo 'hr_fim' preenchido com valor '17:00'.
-[2024-12-15 21:50:35] Cabeçalho preenchido com sucesso.
-[2024-12-15 21:50:37] Formulário salvo com sucesso.
-[2024-12-15 21:50:37] Tentando acessar o iframe secundário...
-[2024-12-15 21:50:37] Iframe secundário já está ativo.
-[2024-12-15 21:50:37] Mudança para o iframe lateral realizada com sucesso.
-[2024-12-15 21:50:37] Novo cabeçalho processado 2: {'obras_chosen': 'teste3', 'contrato_chosen': 'expansão', 'equipe_chosen': 'MT002', 'tip_srv_chosen': 'expansão', 'inputString': 'engenheiro paulo frontin', 'cod_irr_chosen': 801, 'dat_srv': Timestamp('2024-12-14 00:00:00'), 'hr_inic': datetime.time(8, 0), 'dat_srv2': Timestamp('2024-12-14 00:00:00'), 'hr_fim': datetime.time(17, 0)}
-[2024-12-15 21:50:37] Dropdown 'serv_chosen' aberto com sucesso.
-[2024-12-15 21:50:38] Texto '3006950' inserido no campo com sucesso.
-[2024-12-15 21:50:38] Confirmação de que o campo contém o texto '3006950'.
-[2024-12-15 21:50:38] Tecla Enter pressionada.
-[2024-12-15 21:50:38] Campo 'qtd' preenchido com valor '2.00'.
-[2024-12-15 21:50:40] Botão 'Incluir' clicado com sucesso.
-[2024-12-15 21:50:40] Linha 2 processada com sucesso.
-[2024-12-15 21:50:41] Mudança para o iframe central realizada com sucesso.
-[2024-12-15 21:50:43] Botão 'Finalizar' clicado com sucesso.
-[2024-12-15 21:50:43] Alerta aceito automaticamente.
-[2024-12-15 21:50:43] Último ciclo finalizado com sucesso.
-[2024-12-15 21:50:45] WebDriver finalizado com sucesso.
-[2024-12-15 21:50:45] Script finalizado.
+[2024-12-16 20:56:14] Login realizado com sucesso.
+[2024-12-16 20:56:14] Botão de serviço clicado.
+[2024-12-16 20:56:15] Mudança para o iframe lateral realizada com sucesso.
+[2024-12-16 20:56:15] Itens do menu clicados com sucesso.
+[2024-12-16 20:56:20] Mudança para o iframe central realizada com sucesso.
+[2024-12-16 20:56:20] Processando linha 1...
+[2024-12-16 20:56:21] Texto 'Angra dos Reis' inserido no campo 'inputString'.
+[2024-12-16 20:56:21] Lista de sugestões carregada: 1 itens encontrados.
+[2024-12-16 20:56:21] Texto da primeira sugestão: ''.
+[2024-12-16 20:56:21] Sugestão '' clicada com sucesso via XPath.
+[2024-12-16 20:56:22] Dropdown 'contrato_chosen' aberto com sucesso.
+[2024-12-16 20:56:22] Texto 'manutenção' inserido no campo com sucesso.
+[2024-12-16 20:56:22] Confirmação de que o campo contém o texto 'manutenção'.
+[2024-12-16 20:56:23] Tecla Enter pressionada.
+[2024-12-16 20:56:23] Dropdown 'equipe_chosen' aberto com sucesso.
+[2024-12-16 20:56:24] Texto 'MT001' inserido no campo com sucesso.
+[2024-12-16 20:56:24] Confirmação de que o campo contém o texto 'MT001'.
+[2024-12-16 20:56:24] Tecla Enter pressionada.
+[2024-12-16 20:56:24] Dropdown 'tip_srv_chosen' aberto com sucesso.
+[2024-12-16 20:56:25] Texto 'manutenção' inserido no campo com sucesso.
+[2024-12-16 20:56:25] Confirmação de que o campo contém o texto 'manutenção'.
+[2024-12-16 20:56:25] Tecla Enter pressionada.
+[2024-12-16 20:56:26] Dropdown 'obras_chosen' aberto com sucesso.
+[2024-12-16 20:56:26] Texto 'test4' inserido no campo com sucesso.
+[2024-12-16 20:56:26] Confirmação de que o campo contém o texto 'test4'.
+[2024-12-16 20:56:27] Tecla Enter pressionada.
+[2024-12-16 20:56:27] Dropdown 'cod_irr_chosen' aberto com sucesso.
+[2024-12-16 20:56:27] Texto '801' inserido no campo com sucesso.
+[2024-12-16 20:56:27] Confirmação de que o campo contém o texto '801'.
+[2024-12-16 20:56:28] Tecla Enter pressionada.
+[2024-12-16 20:56:28] Campo 'dat_srv' preenchido com valor '13/12/2024'.
+[2024-12-16 20:56:28] Campo 'hr_inic' preenchido com valor '08:00'.
+[2024-12-16 20:56:28] Campo 'dat_srv2' preenchido com valor '13/12/2024'.
+[2024-12-16 20:56:28] Campo 'hr_fim' preenchido com valor '17:00'.
+[2024-12-16 20:56:28] Cabeçalho preenchido com sucesso.
+[2024-12-16 20:56:30] Formulário salvo com sucesso.
+[2024-12-16 20:56:30] Tentando acessar o iframe secundário...
+[2024-12-16 20:56:30] Iframe secundário já está ativo.
+[2024-12-16 20:56:30] Mudança para o iframe lateral realizada com sucesso.
+[2024-12-16 20:56:30] Novo cabeçalho processado 1: {'obras_chosen': 'test4', 'contrato_chosen': 'manutenção', 'equipe_chosen': 'MT001', 'tip_srv_chosen': 'manutenção', 'inputString': 'Angra dos Reis', 'cod_irr_chosen': 801, 'dat_srv': Timestamp('2024-12-13 00:00:00'), 'hr_inic': datetime.time(8, 0), 'dat_srv2': Timestamp('2024-12-13 00:00:00'), 'hr_fim': datetime.time(17, 0)}
+[2024-12-16 20:56:30] Dropdown 'serv_chosen' aberto com sucesso.
+[2024-12-16 20:56:31] Texto '3006931' inserido no campo com sucesso.
+[2024-12-16 20:56:31] Confirmação de que o campo contém o texto '3006931'.
+[2024-12-16 20:56:31] Tecla Enter pressionada.
+[2024-12-16 20:56:31] Campo 'qtd' preenchido com valor '4.00'.
+[2024-12-16 20:56:33] Botão 'Incluir' clicado com sucesso.
+[2024-12-16 20:56:33] Linha 1 processada com sucesso.
+[2024-12-16 20:56:33] Processando linha 2...
+[2024-12-16 20:56:33] Ciclo: 2 para o cabeçalho anterior 1.
+[2024-12-16 20:56:33] Mudança para o iframe central realizada com sucesso.
+[2024-12-16 20:56:34] Botão 'Finalizar' clicado com sucesso.
+[2024-12-16 20:56:34] Alerta e concluido aceito automaticamente.
+[2024-12-16 20:56:34] Ciclo finalizado em 2 para o cabeçalho anterior 1.
+[2024-12-16 20:56:34] Texto 'engenheiro paulo frontin' inserido no campo 'inputString'.
+[2024-12-16 20:56:34] Lista de sugestões carregada: 1 itens encontrados.
+[2024-12-16 20:56:35] Texto da primeira sugestão: ''.
+[2024-12-16 20:56:35] Sugestão '' clicada com sucesso via XPath.
+[2024-12-16 20:56:36] Dropdown 'contrato_chosen' aberto com sucesso.
+[2024-12-16 20:56:36] Texto 'expansão' inserido no campo com sucesso.
+[2024-12-16 20:56:36] Confirmação de que o campo contém o texto 'expansão'.
+[2024-12-16 20:56:37] Tecla Enter pressionada.
+[2024-12-16 20:56:37] Dropdown 'equipe_chosen' aberto com sucesso.
+[2024-12-16 20:56:38] Texto 'MT002' inserido no campo com sucesso.
+[2024-12-16 20:56:38] Confirmação de que o campo contém o texto 'MT002'.
+[2024-12-16 20:56:38] Tecla Enter pressionada.
+[2024-12-16 20:56:38] Dropdown 'tip_srv_chosen' aberto com sucesso.
+[2024-12-16 20:56:39] Texto 'expansão' inserido no campo com sucesso.
+[2024-12-16 20:56:39] Confirmação de que o campo contém o texto 'expansão'.
+[2024-12-16 20:56:39] Tecla Enter pressionada.
+[2024-12-16 20:56:39] Dropdown 'obras_chosen' aberto com sucesso.
+[2024-12-16 20:56:40] Texto 'teste3' inserido no campo com sucesso.
+[2024-12-16 20:56:40] Confirmação de que o campo contém o texto 'teste3'.
+[2024-12-16 20:56:40] Tecla Enter pressionada.
+[2024-12-16 20:56:41] Dropdown 'cod_irr_chosen' aberto com sucesso.
+[2024-12-16 20:56:41] Texto '801' inserido no campo com sucesso.
+[2024-12-16 20:56:41] Confirmação de que o campo contém o texto '801'.
+[2024-12-16 20:56:42] Tecla Enter pressionada.
+[2024-12-16 20:56:42] Campo 'dat_srv' preenchido com valor '14/12/2024'.
+[2024-12-16 20:56:42] Campo 'hr_inic' preenchido com valor '08:00'.
+[2024-12-16 20:56:42] Campo 'dat_srv2' preenchido com valor '14/12/2024'.
+[2024-12-16 20:56:42] Campo 'hr_fim' preenchido com valor '17:00'.
+[2024-12-16 20:56:42] Cabeçalho preenchido com sucesso.
+[2024-12-16 20:56:43] Formulário salvo com sucesso.
+[2024-12-16 20:56:43] Tentando acessar o iframe secundário...
+[2024-12-16 20:56:43] Iframe secundário já está ativo.
+[2024-12-16 20:56:43] Mudança para o iframe lateral realizada com sucesso.
+[2024-12-16 20:56:43] Novo cabeçalho processado 2: {'obras_chosen': 'teste3', 'contrato_chosen': 'expansão', 'equipe_chosen': 'MT002', 'tip_srv_chosen': 'expansão', 'inputString': 'engenheiro paulo frontin', 'cod_irr_chosen': 801, 'dat_srv': Timestamp('2024-12-14 00:00:00'), 'hr_inic': datetime.time(8, 0), 'dat_srv2': Timestamp('2024-12-14 00:00:00'), 'hr_fim': datetime.time(17, 0)}
+[2024-12-16 20:56:44] Dropdown 'serv_chosen' aberto com sucesso.
+[2024-12-16 20:56:44] Texto '3006950' inserido no campo com sucesso.
+[2024-12-16 20:56:44] Confirmação de que o campo contém o texto '3006950'.
+[2024-12-16 20:56:45] Tecla Enter pressionada.
+[2024-12-16 20:56:45] Campo 'qtd' preenchido com valor '2.00'.
+[2024-12-16 20:56:46] Botão 'Incluir' clicado com sucesso.
+[2024-12-16 20:56:46] Linha 2 processada com sucesso.
+[2024-12-16 20:56:46] Mudança para o iframe central realizada com sucesso.
+[2024-12-16 20:56:47] Botão 'Finalizar' clicado com sucesso.
+[2024-12-16 20:56:47] Alerta e concluido aceito automaticamente.
+[2024-12-16 20:56:47] Último ciclo finalizado com sucesso.
+[2024-12-16 20:56:47] Planilha salva mantendo a formatação de data/hora.
+[2024-12-16 20:56:47] Planilha atualizada com status 'ok'.
+[2024-12-16 20:56:49] WebDriver finalizado com sucesso.
+[2024-12-16 20:56:49] Script finalizado.

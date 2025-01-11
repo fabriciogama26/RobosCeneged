@@ -74,6 +74,15 @@ class Apontamento:
         except TimeoutException:
             self.log("Botão de serviço não encontrado.")
 
+    def botao_material_instalado(self):
+        """ Clicar no botão de material instalado """
+        try:
+            # Clicar no botão de materia
+            self.wait.until(EC.element_to_be_clickable ((By.ID, "aba3"))).click()
+            self.log("Botão de material instalado clicado.")
+        except TimeoutException:
+            self.log("Botão de material instalado não encontrado.")
+
     def _acessar_iframes_lateral(self):
         """Troca para os iframes laterais."""
         try:
@@ -108,20 +117,18 @@ class Apontamento:
         """Acessa os iframes secundários."""
         try:
             self.log("Tentando acessar o iframe secundário...")
-            # Verifica se o iframe já está ativo
-            if self.driver.find_element(By.ID, "frm_down").is_displayed():
-                self.log("Iframe secundário já está ativo.")
 
-                # Acessar iframe secundário
-                iframe_servico = self.wait.until(EC.presence_of_element_located((By.ID, "frm_down")))
-                self.driver.switch_to.frame(iframe_servico)
-                self.log("Mudança para o iframe lateral realizada com sucesso.")
-                return  
-         
+            # Esperar que o iframe 'frm_down' seja adicionado ao DOM
+            self.wait.until(
+                EC.frame_to_be_available_and_switch_to_it((By.ID, "frm_down"))
+            )
+
+            self.log("Mudança para o iframe 'frm_down' realizada com sucesso.")
+
         except TimeoutException:
-            self.log("Erro ao acessar os iframes. Verifique a estrutura da página.")
-            self.driver.quit()
-            exit()
+            self.log("Erro: Iframe 'frm_down' não foi encontrado no tempo esperado.")
+        except Exception as e:
+            self.log(f"Erro inesperado ao acessar os iframes: {e}")
 
     def preencher_cabecalho(self, row):
         try:
@@ -162,34 +169,41 @@ class Apontamento:
         finally:
             # salvar
             apontamento.salvar()
+            # Botão material instalado
+            apontamento.botao_material_instalado()
+            # Acessar iframe secundário
+            apontamento._acessar_iframes_secundarios()
+            # Associar equipe
+            apontamento._associar_equipe()
             # Acessar iframe secundário
             apontamento._acessar_iframes_secundarios()
 
-    def preencher_servico(self,row):
-        """Preenche os dados do servico."""
+    def preencher_material_instalado(self, row):
         try:
-
-            # Preencher o campo de texto
-            self._interagir_dropdown("serv_chosen", str(row["serv_chosen"]))
-
+            # self._preencher_e_confirmar("id_listGrupo_chosen", str(row["listGrupo_chosen"]))
+            # # Pausa breve                
+            sleep(0.2)
+            self._interagir_dropdown("listMater_chosen", str(row["listMater_chosen"]))
+            # Pausa breve                
             sleep(0.2)
 
-            # Garantir que 'qtd' seja um número válido e formatá-lo com dois dígitos decimais
-            if isinstance(row["qtd"], (int, float)):
-                valor_qtd = f"{float(row['qtd']):.2f}"  # Formata o número para sempre ter 2 casas decimais
+                        # Garantir que 'qtd' seja um número válido e formatá-lo com dois dígitos decimais
+            if isinstance(row["mater"], (int, float)):
+                valor_qtd = f"{float(row['mater']):.2f}"  # Formata o número para sempre ter 2 casas decimais
             else:
-                raise ValueError(f"Valor inválido para 'qtd': {row['qtd']}")
-            
-            # Preencher o campo com o valor formatado
-            self._preencher_campo_data_hora("qtd", valor_qtd)
+                raise ValueError(f"Valor inválido para 'mater': {row['mater']}")
 
+            # Preencher o campo com o valor formatado
+            self._preencher_campo_data_hora("id_mater", valor_qtd)
+            # Pausa breve                
             sleep(0.2)
 
-            # inclui servico
-            apontamento.incluir()
-            
+            self.incluir()
+
+        except TimeoutException:
+            self.log(f"Erro: Tempo limite ao preencher ou selecionar a sugestão no campo '{row}'.")
         except Exception as e:
-            self.log(f"Erro ao preencher os dados: {e}")
+            self.log(f"Erro inesperado ao processar a sugestão: {e}")
 
     def _preencher_com_sugestao(self, campo_id, texto, suggestion_list_id):
         """Preenche um campo de texto e clica na sugestão correspondente usando XPath."""
@@ -200,19 +214,17 @@ class Apontamento:
             campo_texto.send_keys(texto)
             self.log(f"Texto '{texto}' inserido no campo '{campo_id}'.")
 
-            sleep(0.2)
-
             # Construir XPath diretamente
             xpath = f"//*[@id='{suggestion_list_id}']"
             sugestoes = self.wait.until(EC.presence_of_all_elements_located((By.XPATH, xpath)))
 
             self.log(f"Lista de sugestões carregada: {len(sugestoes)} itens encontrados.")
-            sleep(0.3)
+            sleep(0.1)
             # Clicar na primeira sugestão
             primeira_sugestao = sugestoes[0]
             texto_primeira_sugestao = primeira_sugestao.text.strip()
             self.log(f"Texto da primeira sugestão: '{texto_primeira_sugestao}'.")
-            sleep(0.2)
+            sleep(0.1)
             primeira_sugestao.click()
             self.log(f"Sugestão '{texto_primeira_sugestao}' clicada com sucesso via XPath.")
 
@@ -277,6 +289,25 @@ class Apontamento:
         except TimeoutException:
             self.log(f"Erro ao preencher o campo '{campo_id}'.")
 
+    def _associar_equipe(self):
+        """Associar a equipe ao apontamento."""
+        try:
+
+            xpath = "/html/body/div[1]/p[3]/button"
+            # Aguarda até que o botão esteja clicável
+            botao_associar = self.wait.until(
+                EC.element_to_be_clickable((By.XPATH, xpath))
+            )
+            sleep(0.2)
+
+            botao_associar.click()
+            self.log("Botão 'Associar equipe' clicado com sucesso.")
+
+            # alerta_auto
+            self._alerta_auto()
+        except TimeoutException:    
+            self.log("Erro ao clicar no botão 'Associar equipe'.")
+
     def fechar(self):
         """Finaliza o WebDriver."""
         try:
@@ -291,8 +322,6 @@ class Apontamento:
             salvar = self.wait.until(EC.element_to_be_clickable((By.ID, "idSubmit")))
             salvar.click()
             self.log("Formulário salvo com sucesso.")
-            # Pausa breve
-            sleep(0.1)
         except TimeoutException:
             self.log("Erro ao salvar o formulário.")
 
@@ -371,9 +400,9 @@ class Apontamento:
             # Carregar a planilha
             df = pd.read_excel(file_path)
 
-            # Verificar se as colunas 'status' e 'projeto' existem
-            if 'status' not in df.columns or 'obras_chosen' not in df.columns:
-                self.log("Erro: A planilha não possui as colunas 'status' ou 'projeto'.")
+            # Verificar se a coluna 'status' existe
+            if 'status' not in df.columns:
+                self.log("Erro: A planilha não possui a coluna 'status'.")
                 return
 
             # Garantir que a coluna 'status' existe e preencher com None, caso esteja vazia
@@ -389,60 +418,59 @@ class Apontamento:
             # Inicializar o cabeçalho anterior como vazio
             ultimo_cabecalho = []
 
-            # Criar uma cópia filtrada para processar apenas linhas pendentes
-            df_pendentes = df[df['status'] != 'ok'].copy()
-
-            # Iterar pelas linhas da planilha pendente
-            for index, row in df_pendentes.iterrows():
-                # Verificar se a coluna 'obras_chosen' está vazia
-                if pd.isnull(row['obras_chosen']) or str(row['obras_chosen']).strip() == '':
-                    self.log(f"Linha {index} ignorada: coluna 'projeto' está vazia.")
-                    continue
-
-                self.log(f"Processando linha {index}...")
-
-                # Extrair o cabeçalho atual
-                cabecalho_atual = {col: row[col] for col in colunas_cabecalho}
-
-                # Verificar se o cabeçalho mudou em relação ao último
-                if cabecalho_atual != ultimo_cabecalho:
-                    # Finalizar o ciclo anterior, se necessário
-                    if ultimo_cabecalho:
-                        self.log(f"Ciclo: {index} para o cabeçalho anterior {index - 1}.")
-                        self.finalizar()
-                        self.log(f"Ciclo finalizado para o cabeçalho anterior na linha {index}.")
-
-                    # Atualizar o cabeçalho
-                    try:
-                        self.preencher_cabecalho(row)
-                        ultimo_cabecalho = cabecalho_atual
-                        self.log(f"Novo cabeçalho processado na linha {index}.")
-                    except Exception as e:
-                        self.log(f"Erro ao preencher o cabeçalho na linha {index}: {e}")
+            # Iterar pelas linhas da planilha
+            try:
+                for index, row in df.iterrows():
+                    # Verificar se o status é 'ok'; se sim, pula a linha
+                    if row['status'] == 'ok':
                         continue
 
-                # Preencher o serviço correspondente à linha atual
-                try:
-                    self.preencher_servico(row)
-                    self.log(f"Linha {index} processada com sucesso.")
+                    self.log(f"Processando linha {index}...")
 
-                    # Atualizar o status na versão original do DataFrame
-                    df.at[row.name, 'status'] = 'ok'
+                    # Extrair o cabeçalho atual
+                    cabecalho_atual = {col: row[col] for col in colunas_cabecalho}
 
-                    # Salvar a planilha atualizada
-                    self.salvar_planilha_com_formatacao(df, file_path)
-                    self.log("Planilha salva com status atualizado.")
-                except Exception as e:
-                    self.log(f"Erro ao preencher o serviço na linha {index}: {e}")
-                    continue
+                    # Verificar se o cabeçalho mudou em relação ao último
+                    if cabecalho_atual != ultimo_cabecalho:
+                        # Se não for o primeiro ciclo, finalizar o ciclo anterior
+                        if ultimo_cabecalho:
+                            self.log(f"Ciclo: {index} para o cabeçalho anterior {index - 1}.")
+                            self.finalizar()
+                            self.log(f"Ciclo finalizado em {index} para o cabeçalho anterior {index - 1}.")
+
+                        try:
+                            self.preencher_cabecalho(row)
+                            ultimo_cabecalho = cabecalho_atual
+                            self.log(f"Novo cabeçalho processado {index}: {cabecalho_atual}")
+                        except Exception as e:
+                            self.log(f"Erro ao preencher o cabeçalho na linha {index}: {e}")
+                            continue  # Pula para a próxima linha em caso de erro
+
+                    # Preencher o material retirado correspondente à linha atual
+                    try:
+                        self.preencher_material_instalado(row)
+                        self.log(f"Linha {index} processada com sucesso.")
+
+                        # Atualizar o status para 'ok'
+                        df.at[index, 'status'] = 'ok'
+
+                        # Salvar a planilha atualizada
+                        self.salvar_planilha_com_formatacao(df, file_path)
+                        self.log("Planilha atualizada com status 'ok'.")
+                    except Exception as e:
+                        self.log(f"Erro ao preencher o serviço na linha {index}: {e}")
+                        continue
+
+            except Exception as e:
+                self.log(f"Erro ao iterar pela planilha: {e}")
 
             # Finalizar o último ciclo após o loop
             self.finalizar()
             self.log("Último ciclo finalizado com sucesso.")
 
-            # Salvar a planilha completa ao final
+            # Salvar a planilha atualizada
             self.salvar_planilha_com_formatacao(df, file_path)
-            self.log("Planilha salva com todos os status atualizados.")
+            self.log("Planilha atualizada com status 'ok'.")
 
         except Exception as e:
             self.log(f"Erro ao processar a planilha: {e}")
@@ -455,7 +483,7 @@ if __name__ == "__main__":
         apontamento.botao_serviço()
         apontamento._acessar_iframes_lateral()
         apontamento._acessar_iframes_central()
-        apontamento.executar_planilha("dados_apontamento.xlsx")
+        apontamento.executar_planilha("dados_apontamento_material_instalado_teste.xlsx")
     except Exception as e:
         apontamento.log(f"Erro inesperado: {e}")
     finally:

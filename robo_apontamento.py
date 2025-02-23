@@ -14,7 +14,7 @@ from openpyxl import load_workbook
 from openpyxl.utils.dataframe import dataframe_to_rows
 
 # Configurações globais
-CHROMEDRIVER_PATH = "chromedriver-win64\chromedriver.exe"
+CHROMEDRIVER_PATH = r"chromedriver-win64\chromedriver.exe"
 SITE_URL = "https://cenegedrj.gpm.srv.br/index.php"
 LOGIN_USUARIO = "fabricio.gama"
 SENHA_USUARIO = "11543339735*"
@@ -168,7 +168,6 @@ class Apontamento:
     def preencher_servico(self,row):
         """Preenche os dados do servico."""
         try:
-
             # Preencher o campo de texto
             self._interagir_dropdown("serv_chosen", str(row["serv_chosen"]))
 

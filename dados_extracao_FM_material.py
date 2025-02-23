@@ -2,7 +2,7 @@ import os
 import pandas as pd
 
 # Caminho da pasta
-folder_path = r"C:\Users\ALPHA\Downloads\Mediçao"
+folder_path = "C:\\Users\\fabriciogama\\Downloads\\FOLHA DE MEDIÇÃO - JANEIRO 2025"
 
 # Listar todos os arquivos na pasta
 excel_files = [f for f in os.listdir(folder_path) if f.endswith('.xlsx') or f.endswith('.xls')]
@@ -22,31 +22,27 @@ for file in excel_files:
 
         # Extrair "Projeto"
         data['Projeto'] = data.apply(
-            lambda row: row['Unnamed: 11'] if 'Projeto:' in str(row['Unnamed: 10']) else None, axis=1 # type: ignore
-        ) # type: ignore
+            lambda row: row['Unnamed: 11'] if 'Projeto:' in str(row['Unnamed: 10']) else None, axis=1
+        )
         data['Projeto'] = data['Projeto'].ffill().astype(str).str.replace('.0', '', regex=False).str.strip()
 
         # Extrair "Registro ( Nº FM)"
         data['Registro ( Nº FM)'] = data.apply(
-            lambda row: row['Unnamed: 3'] if 'Registro ( Nº FM):' in str(row['Unnamed: 2']) else None, axis=1 # type: ignore
-        ) # type: ignore
-        data['Registro ( Nº FM)'] = data['Registro ( Nº FM)'].ffill().astype(str).str.replace('.0', '', regex=False).str.strip()
-        
-        # Extrair "Equipe"
-        data['Encarregado'] = data.apply(
-            lambda row: row['Unnamed: 3'] if 'Encarregado:' in str(row['Unnamed: 2']) else None, axis=1 # type: ignore
+            lambda row: row['Unnamed: 3'] if 'Registro ( Nº FM):' in str(row['Unnamed: 2']) else None, axis=1
         )
-        data['Encarregado'] = data['Encarregado'].ffill()
+        data['Registro ( Nº FM)'] = data['Registro ( Nº FM)'].ffill().astype(str).str.replace('.0', '', regex=False).str.strip()
+
+        # print("Diagnóstico para verificar valores:"
+        #       "\Registro ( Nº FM):", data['Registro ( Nº FM)'].dropna().tolist())
 
         # Extrair "Data"
         data['Data'] = data.apply(
-            lambda row: row['Unnamed: 8'] if 'Data:' in str(row['Unnamed: 7']) else None, axis=1 # type: ignore
-        ) # type: ignore
+            lambda row: row['Unnamed: 8'] if 'Data:' in str(row['Unnamed: 7']) else None, axis=1
+        )
         data['Data'] = data['Data'].ffill()
 
-        # Localizar início das seções "Descrição do Serviço" , "Serviço", "QTD" e "Total Valor"
+        # Localizar início das seções "Descrição do Serviço" , "Serviço" e "Total Valor"
         descricao_start = data[data['Unnamed: 2'].astype(str).str.contains('Descrição do Serviço', na=False)].index
-        QTD_start = data[data['Unnamed: 11'].astype(str).str.contains('QTD', na=False)].index
         servico_start = data[data['Unnamed: 7'].astype(str).str.contains('Serviço', na=False)].index
         total_valor_start = data[data['Unnamed: 12'].astype(str).str.contains('Total Valor', na=False)].index
 
@@ -54,7 +50,6 @@ for file in excel_files:
 
         if len(descricao_start) > 0 and len(servico_start) > 0 and len(total_valor_start) > 0:
             descricao_values = data.loc[descricao_start[0] + 1:, 'Unnamed: 2'].dropna().reset_index(drop=True)
-            QTD_values = data.loc[QTD_start[0] + 1:, 'Unnamed: 11'].dropna().reset_index(drop=True)
             servico_values = data.loc[servico_start[0] + 1:, 'Unnamed: 7'].dropna().reset_index(drop=True)
             total_valor_values = data.loc[total_valor_start[0] + 1:, 'Unnamed: 12'].dropna().reset_index(drop=True)
 
@@ -72,9 +67,9 @@ for file in excel_files:
                 # print("--------------------------------------------------")
 
                 # Iterar sobre os valores extraídos
-                for i, (descricao, QTD_values, servico, total_valor) in enumerate(zip(descricao_values, QTD_values ,servico_values, total_valor_values)):
+                for i, (descricao, servico, total_valor) in enumerate(zip(descricao_values, servico_values, total_valor_values)):
                     # Interromper processamento atual se encontrar células em branco
-                    if pd.isnull(descricao) or pd.isnull(QTD_values) or pd.isnull(servico) or pd.isnull(total_valor) or descricao == "" or QTD_values == "" or servico == "" or total_valor == "":
+                    if pd.isnull(descricao) or pd.isnull(servico) or pd.isnull(total_valor) or descricao == "" or servico == "" or total_valor == "":
                         break
                         
                     # Adicionar os dados processados à lista final
@@ -82,10 +77,8 @@ for file in excel_files:
                         'Projeto': origem_data['Projeto'].dropna().iloc[6],  # Primeiro valor válido de "Projeto"
                         'Data': origem_data['Data'].dropna().iloc[6],  # Primeiro valor válido de "Data"
                         'Folha de Medição': origem_data['Registro ( Nº FM)'].dropna().iloc[7],  # Primeiro valor válido de "Folha de Medição"
-                        'Equipe': origem_data['Encarregado'].dropna().iloc[6],  # Primeiro valor valido de "Equipe"
                         'Total Valor': total_valor,
                         'Descrição do Serviço': descricao,
-                        'QTD': QTD_values,
                         'Serviço': servico,
                         'Origem': origem
                     })
@@ -101,25 +94,9 @@ if final_data:
     final_df = pd.DataFrame(final_data)
 
     # Salvar o DataFrame final em um novo arquivo Excel
-    output_path = r"C:\Users\ALPHA\Downloads\Folha_Medicao_Organizada_Final.xlsx"
+    output_path = "C:\\Users\\fabriciogama\\Downloads\\Folha_Medicao_Organizada_Final.xlsx"
     final_df.to_excel(output_path, index=False)
 
     print(f"Dados organizados salvos em: {output_path}")
 else:
     print("Nenhum dado válido encontrado ou processado.")
-
-
-# Contar a quantidade de arquivos Excel na pasta
-excel_files = [f for f in os.listdir(folder_path) if f.endswith('.xlsx') or f.endswith('.xls')]
-num_arquivos_pasta = len(excel_files)
-
-# Contar a quantidade de arquivos processados no arquivo salvo
-try:
-    df = pd.read_excel(output_path)
-    num_arquivos_salvos = df['Origem'].nunique()  # Contar quantos arquivos diferentes aparecem na coluna "Origem"
-except Exception as e:
-    num_arquivos_salvos = f"Erro ao ler o arquivo salvo: {e}"
-
-# Exibir resultados
-print(f"Quantidade de arquivos Excel na pasta: {num_arquivos_pasta}")
-print(f"Quantidade de arquivos registrados no arquivo salvo: {num_arquivos_salvos}")

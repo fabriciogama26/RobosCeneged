@@ -12,12 +12,13 @@ from selenium.common.exceptions import TimeoutException
 from selenium.common.exceptions import NoAlertPresentException
 from openpyxl import load_workbook
 from openpyxl.utils.dataframe import dataframe_to_rows
+from selenium.common.exceptions import StaleElementReferenceException
 
 # Configurações globais
-CHROMEDRIVER_PATH = r"chromedriver-win64\chromedriver.exe"
+CHROMEDRIVER_PATH = "chromedriver-win64\chromedriver.exe"
 SITE_URL = "https://cenegedrj.gpm.srv.br/index.php"
-LOGIN_USUARIO = "fabricio.gama"
-SENHA_USUARIO = "11543339735*"
+LOGIN_USUARIO = "FABRICIO.GAMA"
+SENHA_USUARIO = "115433397*"
 
 class Apontamento:
     def __init__(self):
@@ -125,93 +126,97 @@ class Apontamento:
 
     def preencher_cabecalho(self, row):
         try:
-                  
+
+            # Preenchimento dos campos
             self._preencher_com_sugestao("inputString", row["inputString"], "autoSuggestionsList")
-            # Pausa breve
             sleep(0.5)
             self._interagir_dropdown("contrato_chosen", row["contrato_chosen"])
-            # Pausa breve
-            sleep(0.1)
+            sleep(0.2)
             self._interagir_dropdown("equipe_chosen", row["equipe_chosen"])
-            # Pausa breve
-            sleep(0.1)
+            sleep(0.2)
             self._interagir_dropdown("tip_srv_chosen", row["tip_srv_chosen"])
-            # Pausa breve
-            sleep(0.1)
+            sleep(0.2)
             self._interagir_dropdown("obras_chosen", row["obras_chosen"])
-            # Pausa breve
-            sleep(0.1)
+            sleep(0.2)
             self._interagir_dropdown("cod_irr_chosen", str(row["cod_irr_chosen"]))
-            # Pausa breve
-            sleep(0.1)
+            sleep(0.5)
 
             # Preenchimento de data
             self._preencher_campo_data_hora("dat_srv", row["dat_srv"].strftime("%d/%m/%Y"))
-            # Pausa breve
-            sleep(0.1)
+            sleep(0.2)
             self._preencher_campo_data_hora("hr_inic", row["hr_inic"].strftime("%H:%M"))
-            # Pausa breve
-            sleep(0.1)
+            sleep(0.2)
             self._preencher_campo_data_hora("dat_srv2", row["dat_srv2"].strftime("%d/%m/%Y"))
-            # Pausa breve
-            sleep(0.1)
+            sleep(0.2)
             self._preencher_campo_data_hora("hr_fim", row["hr_fim"].strftime("%H:%M"))
-            self.log("Cabeçalho preenchido com sucesso.")
+            self.log(f"Cabeçalho preenchido com sucesso: {row}")
         except Exception as e:
-            self.log(f"Erro ao preencher o cabeçalho: {e}")
+            self.log(f"Erro ao preencher o cabeçalho: {row} , {e}")
         finally:
-            # salvar
+            # Salvar
             apontamento.salvar()
             # Acessar iframe secundário
             apontamento._acessar_iframes_secundarios()
 
-    def preencher_servico(self,row):
+    def preencher_servico(self, row):
         """Preenche os dados do servico."""
         try:
-            # Preencher o campo de texto
-            self._interagir_dropdown("serv_chosen", str(row["serv_chosen"]))
+            texto = str(row["serv_chosen"])
+    
+            # Preencher o campo de texto e verificar se foi bem-sucedido
+            self._interagir_dropdown_serviso("serv_chosen", texto)
 
-            sleep(0.2)
+        except Exception as e:
+            self.log(f"Erro ao preencher serv_chosen: {texto}: {e}")
+            return  # Sai da função em caso de exceção
 
+        try:
             # Garantir que 'qtd' seja um número válido e formatá-lo com dois dígitos decimais
             if isinstance(row["qtd"], (int, float)):
                 valor_qtd = f"{float(row['qtd']):.2f}"  # Formata o número para sempre ter 2 casas decimais
             else:
+                self.log(f"Valor inválido para 'qtd': {row['qtd']}")
                 raise ValueError(f"Valor inválido para 'qtd': {row['qtd']}")
             
             # Preencher o campo com o valor formatado
-            self._preencher_campo_data_hora("qtd", valor_qtd)
-
-            sleep(0.2)
-
-            # inclui servico
-            apontamento.incluir()
-            
+            self._preencher_campo_valor("qtd", valor_qtd)
+                
         except Exception as e:
-            self.log(f"Erro ao preencher os dados: {e}")
+            self.log(f"Erro ao preencher os dados {valor_qtd}: {e}")
+            self.cancelar()
+            self.fechar()
+
+        try:
+
+            sleep(0.5)
+
+            # Incluir o apontamento somente se o serviço foi preenchido com sucesso
+            apontamento.incluir()
+
+        except Exception as e:
+            self.log(f"Erro ao incluir o apontamento: {e}")
 
     def _preencher_com_sugestao(self, campo_id, texto, suggestion_list_id):
         """Preenche um campo de texto e clica na sugestão correspondente usando XPath."""
         try:
+
             # Localizar o campo de texto e inserir o texto
             campo_texto = self.wait.until(EC.element_to_be_clickable((By.ID, campo_id)))
             campo_texto.clear()
             campo_texto.send_keys(texto)
             self.log(f"Texto '{texto}' inserido no campo '{campo_id}'.")
 
-            sleep(0.2)
-
             # Construir XPath diretamente
             xpath = f"//*[@id='{suggestion_list_id}']"
             sugestoes = self.wait.until(EC.presence_of_all_elements_located((By.XPATH, xpath)))
 
             self.log(f"Lista de sugestões carregada: {len(sugestoes)} itens encontrados.")
-            sleep(0.3)
+            
             # Clicar na primeira sugestão
             primeira_sugestao = sugestoes[0]
             texto_primeira_sugestao = primeira_sugestao.text.strip()
             self.log(f"Texto da primeira sugestão: '{texto_primeira_sugestao}'.")
-            sleep(0.2)
+         
             primeira_sugestao.click()
             self.log(f"Sugestão '{texto_primeira_sugestao}' clicada com sucesso via XPath.")
 
@@ -220,39 +225,137 @@ class Apontamento:
         except Exception as e:
             self.log(f"Erro inesperado ao processar a sugestão: {e}")
 
+    def _preencher_e_confirmar_serviso(self, campo, texto):
+        """Insere texto em um campo e aguarda para pressionar Enter."""
+        try:
+            # Converte o texto para string, caso não seja
+            textos = str(texto)
+            
+            # Aguarda até que o campo esteja clicável e recarrega o elemento
+            campo = self.wait.until(EC.element_to_be_clickable(campo))
+            campo.click()
+
+            sleep(0.3)
+
+            # Limpa o campo antes de preencher (opcional, dependendo do comportamento desejado)
+            campo.clear()
+
+            sleep(0.3)
+
+            # Enviar o texto
+            campo.send_keys(textos)
+            self.log(f"Texto '{textos}' inserido no campo com sucesso.")
+            
+            # Pressionar Enter
+            campo.send_keys(Keys.ENTER)
+            self.log("Tecla Enter pressionada.")
+
+        except TimeoutException:
+            self.log(f"Erro ao inserir e confirmar o texto '{textos}': Timeout ao aguardar o campo ou o texto.")
+        except ValueError as e:
+            self.log(f"Erro ao inserir e confirmar o texto '{textos}': {e}")
+        except StaleElementReferenceException:
+            self.log(f"Elemento obsoleto ao tentar preencher o texto '{textos}'. Tentando novamente...")
+            self._preencher_e_confirmar_serviso(campo, texto)  # Tenta novamente
+        except Exception as e:
+            self.log(f"Erro inesperado ao inserir e confirmar o texto '{textos}': {str(e)}")
+            self.cancelar()
+
     def _preencher_e_confirmar(self, campo, texto):
         """Insere texto em um campo e aguarda para pressionar Enter."""
         try:
-
+            # Verificar se o campo existe e é válido
+            if campo is None:
+                raise ValueError("Campo é nulo")
+            if not hasattr(campo, 'is_enabled') or not hasattr(campo, 'is_displayed'):
+                raise ValueError("Campo não é um elemento válido")
+            
+            # Converte o texto para string, caso não seja
+            texto = str(texto)
+            
             # Aguarda até que o campo esteja clicável
             campo = self.wait.until(EC.element_to_be_clickable(campo))
-            
+            campo.click()
+
+                                            
+            # Verificar se o elemento ainda é válido
+            if not campo.is_enabled() or not campo.is_displayed():
+                raise Exception("Elemento não está mais disponível ou visível.")
+
+            # Limpar o campo
+            campo.clear()
+
             # Enviar o texto
-            campo.clear()  # Limpa o campo antes de inserir o texto
             campo.send_keys(texto)
             self.log(f"Texto '{texto}' inserido no campo com sucesso.")
-
-            # Aguarda um pequeno intervalo para que o dropdown processe o texto
-            self.wait.until(lambda driver: texto.lower() in campo.get_attribute("value").lower())
+            
+            # Aguardar até que o texto seja refletido no campo
+            self.wait.until(lambda driver: campo.get_attribute("value") is not None and texto.lower() in campo.get_attribute("value").lower())
             self.log(f"Confirmação de que o campo contém o texto '{texto}'.")
-
+            
             # Pressionar Enter
             campo.send_keys(Keys.ENTER)
-
-            # Pausa breve
-            sleep(0.3)
-            
             self.log("Tecla Enter pressionada.")
+            
         except TimeoutException:
-            self.log(f"Erro ao inserir e confirmar o texto '{texto}'.")
+            self.log(f"Erro ao inserir e confirmar o texto '{texto}': Timeout ao aguardar o campo ou o texto.")
+        except ValueError as e:
+            self.log(f"Erro ao inserir e confirmar o texto '{texto}': {e}")
+        except Exception as e:
+            self.log(f"Erro inesperado ao inserir e confirmar o texto '{texto}': {str(e)}")
+            self.cancelar()
 
+    def _interagir_dropdown_serviso(self, dropdown_id, texto):
+        """Interage com um dropdown customizado."""
+        #max_tentativas = 3  # Número máximo de tentativas
+        #for tentativa in range(max_tentativas):
+        try:
+            #self.log(f"Tentativa {tentativa + 1} de interagir com o dropdown '{dropdown_id}'.")
+
+            # Aguardar até que o dropdown esteja clicável
+
+            sleep(0.5)
+            dropdown_service = self.wait.until(EC.element_to_be_clickable((By.ID, dropdown_id)))
+            dropdown_service.click()
+            
+            self.log(f"Dropdown '{dropdown_id}' aberto com sucesso.")
+
+            # Localiza o campo de busca dentro do dropdown
+            search_box = self.wait.until(
+                EC.presence_of_element_located((By.CSS_SELECTOR, f"#{dropdown_id} div.chosen-search input"))
+            )
+            sleep(0.5)            
+            # Preenche o texto e confirma com Enter
+            self._preencher_e_confirmar_serviso(search_box, texto)
+
+            # Verifica se o texto foi inserido corretamente
+            if search_box.get_attribute("value") == texto:
+                self.log(f"Texto '{texto}' preenchido com sucesso no dropdown '{dropdown_id}'.")
+                return True  # Retorna True se o texto foi preenchido corretamente
+            else:
+                self.log(f"Falha ao preencher o texto '{texto}' no dropdown '{dropdown_id}'.")
+                return False  # Retorna False se o texto não foi preenchido corretamente
+
+        except StaleElementReferenceException:
+            self.log(f"Elemento obsoleto na tentativa tentativa + 1. Tentando novamente...")
+            #continue  # Tenta novamente em caso de elemento obsoleto
+        except TimeoutException:
+            self.log(f"Timeout ao interagir com o dropdown '{dropdown_id}' na tentativa tentativa + 1.")
+            #continue  # Tenta novamente em caso de timeout
+        except Exception as e:
+            self.log(f"Erro inesperado ao interagir com o dropdown '{dropdown_id}': {e}")
+            return False  # Retorna False em caso de exceção
+
+        # self.log(f"Falha após {max_tentativas} tentativas de interagir com o dropdown '{dropdown_id}'.")
+        # return False  # Retorna False se todas as tentativas falharem
     def _interagir_dropdown(self, dropdown_id, texto):
         """Interage com um dropdown customizado."""
         try:
 
             # Abre o dropdown
-            dropdown = self.wait.until(EC.element_to_be_clickable((By.ID, dropdown_id)))
-            dropdown.click()
+            self.wait.until(EC.element_to_be_clickable((By.ID, dropdown_id ))).click()
+            
+            
             self.log(f"Dropdown '{dropdown_id}' aberto com sucesso.")
 
             # Localiza o campo de busca dentro do dropdown
@@ -266,6 +369,15 @@ class Apontamento:
             self._preencher_e_confirmar(search_box, texto)
         except TimeoutException:
             self.log(f"Erro ao interagir com o dropdown '{dropdown_id}'.")
+
+    def _preencher_campo_valor(self, campo_id, valor):
+        """Preenche um campo de texto ou data/hora."""
+        try:
+            campo = self.wait.until(EC.element_to_be_clickable((By.ID, campo_id)))
+            self.driver.execute_script("arguments[0].value = arguments[1];", campo, valor)
+            self.log(f"Campo '{campo_id}' preenchido com valor '{valor}'.")
+        except TimeoutException:
+            self.log(f"Erro ao preencher o campo '{campo_id}'.")
 
     def _preencher_campo_data_hora(self, campo_id, valor):
         """Preenche um campo de texto ou data/hora."""
@@ -298,16 +410,19 @@ class Apontamento:
     def incluir(self):
         """Clica no botão Incluir."""
         try:
+
             # Aguarda até que o botão esteja clicável
             botao_incluir = self.wait.until(
                 EC.element_to_be_clickable((By.CSS_SELECTOR, "input.dt-button.btn_green"))
             )
+
             sleep(0.2)
 
             botao_incluir.click()
             self.log("Botão 'Incluir' clicado com sucesso.")
         except TimeoutException:
             self.log("Erro ao clicar no botão 'Incluir'. Verifique se ele está visível na página.")
+            self.fechar()
 
     def finalizar(self):
         """Finaliza o ciclo clicando no botão 'finalizar'."""
@@ -324,6 +439,22 @@ class Apontamento:
             
         except Exception as e:
             self.log(f"Erro ao finalizar: {e}")
+    def cancelar(self):
+        """Cancela o ciclo clicando no botão 'Cancelar'."""
+        try:
+            # Garantir que estamos no iframe central
+            self._acessar_iframes_central()
+
+            # Localizar e clicar no botão "Cancelar"
+            botao_cancelar = self.wait.until(EC.element_to_be_clickable((By.ID, "idCancel")))
+            botao_cancelar.click()
+            self.log("Botão 'Cancelar' clicado com sucesso.")
+
+            self._alerta_auto()
+            self.fechar()
+            
+        except Exception as e:
+            self.log(f"Erro ao cancelar: {e}")
 
     def _alerta_auto(self):
         """Fecha os alertas automaticamente."""
@@ -367,6 +498,8 @@ class Apontamento:
     def executar_planilha(self, file_path):
         """Executa as entradas da planilha com base em cabeçalhos e serviços."""
         try:
+            
+
             # Carregar a planilha
             df = pd.read_excel(file_path)
 
@@ -427,10 +560,12 @@ class Apontamento:
 
                     # Atualizar o status na versão original do DataFrame
                     df.at[row.name, 'status'] = 'ok'
+                    self.log(f"Status ok atualizado na linha {index}.")
 
                     # Salvar a planilha atualizada
                     self.salvar_planilha_com_formatacao(df, file_path)
                     self.log("Planilha salva com status atualizado.")
+                    sleep(0.5)
                 except Exception as e:
                     self.log(f"Erro ao preencher o serviço na linha {index}: {e}")
                     continue
@@ -454,7 +589,7 @@ if __name__ == "__main__":
         apontamento.botao_serviço()
         apontamento._acessar_iframes_lateral()
         apontamento._acessar_iframes_central()
-        apontamento.executar_planilha("dados_apontamento.xlsx")
+        apontamento.executar_planilha(r"C:\Users\fabriciogama\Downloads\Programas\Robo_apontamento\Cópia de dados_apontamento - barra mansa.xlsx")
     except Exception as e:
         apontamento.log(f"Erro inesperado: {e}")
     finally:

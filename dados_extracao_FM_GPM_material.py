@@ -10,6 +10,9 @@ excel_files = [f for f in os.listdir(folder_path) if f.endswith('.xlsx') or f.en
 # Inicializar lista para armazenar os dados organizados
 final_data = []
 
+# Inicializar lista para armazenar os dados organizados
+final_data_2 = []
+
 # Iterar sobre os arquivos Excel
 for file in excel_files:
     file_path = os.path.join(folder_path, file)  # Construir o caminho completo do arquivo
@@ -123,29 +126,39 @@ for file in excel_files:
 # Filtrar linhas com "SEM Restrição" em "Descrição do Serviço"
 final_data = [row for row in final_data if row['descricao_material'] != "SEM Restrição"]
 
-# Converter os dados processados em um DataFrame final
+    # Converter os dados processados em um DataFrame final
 if final_data:
     final_df = pd.DataFrame(final_data)
 
     folder_path2 = r"C:\Users\fabriciogama\Downloads"
 
-    # Salvar o DataFrame final em um novo arquivo Excel
-    output_data = "Folha_Medicao_Organizada_material.xlsx"
-    output_path = os.path.join(folder_path2, output_data)
+    # Criar DataFrame para material aplicado
+    material_aplicado_df = pd.DataFrame({
+        'cod_material*': final_df['Lote Material'],
+        'situacao': 'NV',
+        'local_aplicado*': 'GERAL',
+        'qtd_material': final_df['Quantidade Material'],
+        'rastro_material': ''  # Deixar vazio ou preencher conforme necessário
+    })
 
-    # Identificar arquivos faltantes
-    arquivos_processados = final_df['Origem'].unique()  # Arquivos que foram processados
-    arquivos_faltantes = [f for f in excel_files if f not in arquivos_processados]  # Arquivos que não foram processados
+    # Criar DataFrame para material retirado
+    material_retirado_df = pd.DataFrame({
+        'cod_material*': final_df['Lote Retirado'],
+        'situacao': 'SC',
+        'local_aplicado*': 'GERAL',
+        'qtd_material': final_df['Quantidade Retirado'],
+        'rastro_material': ''  # Deixar vazio ou preencher conforme necessário
+    })
 
-    # Criar um DataFrame com os arquivos faltantes
-    faltantes_df = pd.DataFrame({'Arquivos Faltantes': arquivos_faltantes})
+    # Salvar os DataFrames em arquivos CSV com codificação UTF-8
+    output_folder = folder_path2  # Pasta de saída (mesma pasta de entrada)
+    material_aplicado_path = os.path.join(output_folder, "modelo_importacao_serv_material_lote_aplicado.csv")
+    material_retirado_path = os.path.join(output_folder, "modelo_importacao_serv_material_lote_retirado.csv")
 
-    # Salvar o DataFrame final e o DataFrame de arquivos faltantes em abas diferentes
-    with pd.ExcelWriter(output_path, engine='openpyxl') as writer:
-        final_df.to_excel(writer, sheet_name='Dados Organizados', index=False)
-        faltantes_df.to_excel(writer, sheet_name='Arquivos Faltantes', index=False)
+    material_aplicado_df.to_csv(material_aplicado_path, index=False, encoding='utf-8')
+    material_retirado_df.to_csv(material_retirado_path, index=False, encoding='utf-8')
 
-    print(f"Dados organizados salvos em: {output_path}")
-    print(f"Arquivos faltantes: {arquivos_faltantes}")
+    print(f"Arquivo de material aplicado salvo em: {material_aplicado_path}")
+    print(f"Arquivo de material retirado salvo em: {material_retirado_path}")
 else:
     print("Nenhum dado válido encontrado ou processado.")

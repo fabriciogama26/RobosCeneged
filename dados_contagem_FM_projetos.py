@@ -1,7 +1,7 @@
 import pandas as pd
 
 # Carregar o arquivo Excel
-file_path = "C:\\Users\\fabriciogama\\Downloads\\Dash\\FOLHA MEDIÇÃO.xlsx"
+file_path = r"C:\Users\fabriciogama\Downloads\FOLHA MEDIÇÃO CONSOLIDADO.xlsx"
 df = pd.read_excel(file_path, sheet_name="Sheet1")
 
 # Converter a coluna "Data" para datetime
@@ -11,7 +11,8 @@ df["Data"] = pd.to_datetime(df["Data"], errors="coerce")
 df = df.sort_values(by=["Data"], ascending=True)
 
 # Unificar as colunas de equipe para contar corretamente a quantidade de equipes
-df["Equipes"] = df[["Equipe", "Equipe 2", "Equipe 3", "Equipe 4", "Equipe 5", "Equipe 6"]].apply(lambda x: list(set(x.dropna())), axis=1)
+# df["Equipes"] = df[["Equipe", "Equipe 2", "Equipe 3", "Equipe 4", "Equipe 5", "Equipe 6"]].apply(lambda x: list(set(x.dropna())), axis=1)
+df["Equipes"] = df[["Equipe"]].apply(lambda x: list(set(x.dropna())), axis=1)
 
 # Separar dados com e sem OS/OM
 df_com_osom = df[df["OS/OM"].notna()]

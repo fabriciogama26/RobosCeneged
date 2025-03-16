@@ -2,7 +2,7 @@ import os
 import pandas as pd
 
 # Caminho da pasta
-folder_path = r"C:\Users\ALPHA\Downloads\Mediçao"
+folder_path = r"C:\Users\fabriciogama\Downloads\Mediçao"
 
 # Listar todos os arquivos na pasta
 excel_files = [f for f in os.listdir(folder_path) if f.endswith('.xlsx') or f.endswith('.xls')]
@@ -12,7 +12,7 @@ final_data = []
 
 # Iterar sobre os arquivos Excel
 for file in excel_files:
-    file_path = os.path.join(folder_path, file)  # Construir o caminho completo
+    file_path = os.path.join(folder_path, file)  # Construir o caminho completo do arquivo
     print(f"Lendo arquivo: {file}")
     
     try:
@@ -22,61 +22,76 @@ for file in excel_files:
 
         # Extrair "Projeto"
         data['Projeto'] = data.apply(
-            lambda row: row['Unnamed: 11'] if 'Projeto:' in str(row['Unnamed: 10']) else None, axis=1 # type: ignore
-        ) # type: ignore
+            lambda row: row['Unnamed: 11'] if 'Projeto:' in str(row['Unnamed: 10']) else None, axis=1
+        )
         data['Projeto'] = data['Projeto'].ffill().astype(str).str.replace('.0', '', regex=False).str.strip()
 
-        # Extrair "Registro ( Nº FM)"
+        # Extrair "Registro (Nº FM)"
         data['Registro ( Nº FM)'] = data.apply(
-            lambda row: row['Unnamed: 3'] if 'Registro ( Nº FM):' in str(row['Unnamed: 2']) else None, axis=1 # type: ignore
-        ) # type: ignore
+            lambda row: row['Unnamed: 3'] if 'Registro ( Nº FM):' in str(row['Unnamed: 2']) else None, axis=1
+        )
         data['Registro ( Nº FM)'] = data['Registro ( Nº FM)'].ffill().astype(str).str.replace('.0', '', regex=False).str.strip()
         
         # Extrair "Equipe"
         data['Encarregado'] = data.apply(
-            lambda row: row['Unnamed: 3'] if 'Encarregado:' in str(row['Unnamed: 2']) else None, axis=1 # type: ignore
+            lambda row: row['Unnamed: 3'] if 'Encarregado:' in str(row['Unnamed: 2']) else None, axis=1
         )
         data['Encarregado'] = data['Encarregado'].ffill()
 
         # Extrair "Data"
         data['Data'] = data.apply(
-            lambda row: row['Unnamed: 8'] if 'Data:' in str(row['Unnamed: 7']) else None, axis=1 # type: ignore
-        ) # type: ignore
+            lambda row: row['Unnamed: 8'] if 'Data:' in str(row['Unnamed: 7']) else None, axis=1
+        )
         data['Data'] = data['Data'].ffill()
 
-        # Localizar início das seções "Descrição do Serviço" , "Serviço", "QTD" e "Total Valor"
+        # Localizar início das seções "QTD", "Descrição do Serviço" , "Serviço" e "Total Valor"
+        quantidade_start = data[data['Unnamed: 11'].astype(str).str.contains('QTD', na=False)].index
         descricao_start = data[data['Unnamed: 2'].astype(str).str.contains('Descrição do Serviço', na=False)].index
-        QTD_start = data[data['Unnamed: 11'].astype(str).str.contains('QTD', na=False)].index
+        contratro_start = data[data['Unnamed: 6'].astype(str).str.contains('Centro', na=False)].index
         servico_start = data[data['Unnamed: 7'].astype(str).str.contains('Serviço', na=False)].index
         total_valor_start = data[data['Unnamed: 12'].astype(str).str.contains('Total Valor', na=False)].index
 
-        # Verificar se as seções foram encontradas
-
-        if len(descricao_start) > 0 and len(servico_start) > 0 and len(total_valor_start) > 0:
+        # Verificar se as seções foram encontradas e extrair os valores correspondentes
+        if len(quantidade_start) > 0 and len(descricao_start) > 0 and len(servico_start) > 0 and len(total_valor_start) > 0 and len(contratro_start) > 0:
+            # Extrair os valores das seções "QTD", "Descrição do Serviço" , "Serviço" e "Total Valor" a partir do início encontrado e remover linhas vazias
+            quantidade_values = data.loc[quantidade_start[0] + 1:, 'Unnamed: 11'].dropna().reset_index(drop=True)
             descricao_values = data.loc[descricao_start[0] + 1:, 'Unnamed: 2'].dropna().reset_index(drop=True)
-            QTD_values = data.loc[QTD_start[0] + 1:, 'Unnamed: 11'].dropna().reset_index(drop=True)
+            contrato_values = data.loc[contratro_start[0] + 1:, 'Unnamed: 6'].dropna().reset_index(drop=True)
             servico_values = data.loc[servico_start[0] + 1:, 'Unnamed: 7'].dropna().reset_index(drop=True)
             total_valor_values = data.loc[total_valor_start[0] + 1:, 'Unnamed: 12'].dropna().reset_index(drop=True)
 
-            # Processar dados por "Arquivo Origem"
+            # if contrato_values == "36-lv":
+            #     contrato_values == "Linha Viva"
+            # elif contrato_values == "36-lm":
+            #     contrato_values == "Linha Morta"
+            # elif contrato_values == "spot-manutencao":
+            #     contrato_values == "Manutencao"
+            # elif contrato_values == "spot-expansao":
+            #     contrato_values == "Expansao"
+
+            # Processar dados por "Arquivo Origem" 
             for origem in data['Arquivo Origem'].unique():
                 origem_data = data[data['Arquivo Origem'] == origem]
 
+                
+                # print("--------------------------------------------------")
                 # print("Diagnóstico para verificar valores:")
                 # print("Projeto:", origem_data['Projeto'].dropna().tolist())
                 # print("Data:", origem_data['Data'].dropna().tolist())
                 # print("Total Valor:", origem_data['Unnamed: 12'].dropna().tolist())
                 # print("Descrição do Serviço:", descricao)
+                # print("Quantidade:", quantidade)
                 # print("Serviço:", servico)
                 # print("Origem:", origem)
                 # print("--------------------------------------------------")
 
-                # Iterar sobre os valores extraídos
-                for i, (descricao, QTD_values, servico, total_valor) in enumerate(zip(descricao_values, QTD_values ,servico_values, total_valor_values)):
+                # Iterar sobre os valores extraídos e processar os dados
+                for i, (quantidade, descricao, contrato ,servico, total_valor) in enumerate(zip( quantidade_values, descricao_values, contrato_values, servico_values, total_valor_values)):
                     # Interromper processamento atual se encontrar células em branco
-                    if pd.isnull(descricao) or pd.isnull(QTD_values) or pd.isnull(servico) or pd.isnull(total_valor) or descricao == "" or QTD_values == "" or servico == "" or total_valor == "":
+                    if pd.isnull(quantidade) or pd.isnull(descricao) or pd.isnull(contrato) or pd.isnull(servico) or pd.isnull(total_valor) or quantidade == "" or descricao == "" or contrato == "" or servico == "" or total_valor == "":
                         break
-                        
+
+
                     # Adicionar os dados processados à lista final
                     final_data.append({
                         'Projeto': origem_data['Projeto'].dropna().iloc[6],  # Primeiro valor válido de "Projeto"
@@ -85,8 +100,9 @@ for file in excel_files:
                         'Equipe': origem_data['Encarregado'].dropna().iloc[6],  # Primeiro valor valido de "Equipe"
                         'Total Valor': total_valor,
                         'Descrição do Serviço': descricao,
-                        'QTD': QTD_values,
+                        'Quantidade': quantidade,
                         'Serviço': servico,
+                        'Contrato': contrato,
                         'Origem': origem
                     })
 
@@ -101,7 +117,11 @@ if final_data:
     final_df = pd.DataFrame(final_data)
 
     # Salvar o DataFrame final em um novo arquivo Excel
-    output_path = r"C:\Users\ALPHA\Downloads\Folha_Medicao_Organizada_Final.xlsx"
+    output_data = "Folha_Medicao_Organizada_fev.xlsx"
+
+    # Salvar o DataFrame final em um novo arquivo Excel com o nome personalizado
+    output_path = f"C:\\Users\\fabriciogama\\Downloads\\{output_data}"
+    # index=False para evitar a criação de uma coluna de index
     final_df.to_excel(output_path, index=False)
 
     print(f"Dados organizados salvos em: {output_path}")
@@ -113,13 +133,33 @@ else:
 excel_files = [f for f in os.listdir(folder_path) if f.endswith('.xlsx') or f.endswith('.xls')]
 num_arquivos_pasta = len(excel_files)
 
-# Contar a quantidade de arquivos processados no arquivo salvo
+# Contar a quantidade de arquivos processados no arquivo salvo e identificar arquivos faltantes
 try:
     df = pd.read_excel(output_path)
     num_arquivos_salvos = df['Origem'].nunique()  # Contar quantos arquivos diferentes aparecem na coluna "Origem"
-except Exception as e:
-    num_arquivos_salvos = f"Erro ao ler o arquivo salvo: {e}"
+    
+    # Converter as listas para conjuntos
+    arquivos_pasta_set = set(excel_files)  # Conjunto de arquivos na pasta
+    arquivos_processados_set = set(df['Origem'].unique())  # Conjunto de arquivos processados
 
-# Exibir resultados
-print(f"Quantidade de arquivos Excel na pasta: {num_arquivos_pasta}")
-print(f"Quantidade de arquivos registrados no arquivo salvo: {num_arquivos_salvos}")
+    # Encontrar a diferença entre os conjuntos (arquivos na pasta que não foram processados)
+    arquivos_faltantes_set = arquivos_pasta_set - arquivos_processados_set
+
+    # Converter o conjunto de volta para uma lista (se necessário)
+    arquivos_faltantes = list(arquivos_faltantes_set)
+    
+    # Exibir resultados de contagem de arquivos
+    print(f"Quantidade de arquivos Excel na pasta: {num_arquivos_pasta}")
+    print(f"Quantidade de arquivos registrados no arquivo {output_data}: {num_arquivos_salvos}")
+    
+    # Exibir arquivos faltantes
+    if arquivos_faltantes:
+        print("Arquivos faltantes (não processados ou não registrados):")
+        # Exibir os arquivos faltantes dentro da pasta
+        for arquivo in arquivos_faltantes:
+            print(f"- {arquivo}")
+    else:
+        print("Todos os arquivos foram processados e registrados.")
+        
+except Exception as e:
+    print(f"Erro ao ler o arquivo salvo: {e}")

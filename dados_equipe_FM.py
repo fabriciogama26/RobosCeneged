@@ -1,7 +1,8 @@
 import pandas as pd
+from thefuzz import process
 
 # Carregar os dados da Planilha1
-df1 = pd.read_excel('equipe.xlsx', sheet_name='Planilha1', header=None)
+df1 = pd.read_excel(r"C:\Users\fabriciogama\Downloads\Equipe.xlsx", sheet_name='Planilha1', header=None)
 
 # # Carregar os dados da Planilha2
 # df2 = pd.read_excel('equipe.xlsx', sheet_name='Planilha2', header=None)
@@ -21,6 +22,7 @@ mapeamento_personalizado = {
     "MAURICIO MARQUES": "MT006",
     "JEFFERSON JUNIOR": "EX017",
     "JEFFERSON  JUNIOR": "EX017",
+    "JEFFERSON": "EX017",
     "CAIQUE BRAZIEL TEODORO ALVES": "AV001",
     "DANIEL ALVES DA SILVA CARDOSO": "AV002",
     "MARCIO JUNIOR": "AV003",
@@ -35,7 +37,9 @@ mapeamento_personalizado = {
     "MARCELO DA ROCHA": "EX003",
     "RAFAEL VICTOR": "EX005",
     "JOSE HIPOLITO": "EX007",
+    "HIPÓLITO": "EX007",
     "RAPHAEL CASEMIRO": "EX008",
+    "RAFAEL CASEMIRO": "EX008",
     "MAX PAULO": "EX010",
     "ROBERTO NASSAR": "EX011",
     "ROBSON DA SILVA MARQUES": "EX012",
@@ -47,36 +51,50 @@ mapeamento_personalizado = {
     "WALBER SPINDOLA": "LV004",
     "JORGE LEANDRO": "MT001",
     "JOSE EDSON": "MT002",
+    "J. EDSON": "MT002",
     "MARCEL DO CARMO": "MT003",
     "EDUARDO MARTINS FERREIRA": "MT004",
     "VINICIO JOSE": "MT005",
+    "VINICIO JOSÉ": "MT005",
     "MAURILIO MARQUES": "MT007",
     "WELLINGTON BARCELOS": "MT008",
     "OTAVIO VELOSO ": "EX016",
+    "MAURICIO SILVA": "EX004",
 }
 
 # # Combinar o mapeamento personalizado com o mapeamento da Planilha2
 # equipe_map.update(mapeamento_personalizado)
 
+# Função para encontrar a melhor correspondência aproximada
+def encontrar_correspondencia(nome, mapeamento, limite=50):
+
+    # Usar fuzzywuzzy para encontrar a melhor correspondência
+    melhor_correspondencia, pontuacao = process.extractOne(nome, mapeamento.keys())
+    # Retornar o código se a pontuação for maior que o limite
+    if pontuacao >= limite:
+        return mapeamento[melhor_correspondencia]
+    else:
+        return 'N/A'  # Caso não encontre uma correspondência válida
+
 # Função para mapear nomes para códigos de equipe
 def mapear_equipe(nomes):
     equipes = []
-    for nome in nomes.split('/'):  # Dividir os nomes por barra
+    for nome in nomes.split('/'):
         nome = nome.strip()  # Remover espaços extras
-        
-        encontrado = False # Variável para indicar se o nome foi encontrado
-        # Iterar sobre o mapeamento personalizado para encontrar a correspondência
-        for chave in mapeamento_personalizado:
-            if nome in chave or chave in nome:  # Verificar se o nome contém a chave
-                equipes.append(mapeamento_personalizado[chave])  # Adicionar o código de equipe correspondente
-                encontrado = True  # Marcar que o nome foi encontrado
-                break
-        if not encontrado:
-            equipes.append('N/A')  # Caso o nome não seja encontrado
-    return '/'.join(equipes)  # Juntar os códigos de equipe com barra
+        # Encontrar a correspondência aproximada
+        codigo = encontrar_correspondencia(nome, mapeamento_personalizado)
+        equipes.append(codigo)
+    return '/'.join(equipes)
 
 # Aplicar a função à coluna A da Planilha1
 df1['Equipe'] = df1[0].apply(mapear_equipe)
 
+# Salvar o DataFrame final em um novo arquivo Excel
+output_data = 'equipe_modificado.xlsx'
+
+# Salvar o DataFrame final em um novo arquivo Excel com o nome personalizado
+output_path = f"C:\\Users\\fabriciogama\\Downloads\\{output_data}"
+# index=False para evitar a criação de uma coluna de index
+
 # Salvar o DataFrame modificado em um novo arquivo .xlsx
-df1.to_excel('equipe_modificado.xlsx', index=False, header=False)
+df1.to_excel(output_path, index=False, header=False)

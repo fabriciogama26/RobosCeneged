@@ -1,20 +1,23 @@
-import pandas as pd
+def extrair_linhas_com_palavras_chave(nome_arquivo, palavras_chave):
+    linhas_encontradas = []
 
-# Caminho do arquivo Excel
-file_path = "C:\\Users\\fabriciogama\\OneDrive - CENEGED - COMPANHIA ELETROMECANICA E GERENCIAMENTO DE DADOS\\Leonardo\\Relatório de Excecução Manutenção.xlsx"
-file2_path = "C:\\Users\\fabriciogama\\Downloads\\PLANILHA CONSOLIDADO MEDIÇÃO.xlsx"
+    with open(nome_arquivo, 'r', encoding='utf-8') as arquivo:
+        for linha in arquivo:
+            if any(palavra.lower() in linha.lower() for palavra in palavras_chave):
+                linhas_encontradas.append(linha.strip())
 
-# Ler o arquivo Excel
-data1 = pd.read_excel(file_path, skiprows=1)  # Começa a partir da segunda linha
-data2 = pd.read_excel(file2_path)
+    return linhas_encontradas
 
-# Forçar a conversão das colunas 'Hora-Inicio' e 'Hora-Fim' para datetime
-data1['Hora-Inicio'] = pd.to_datetime(data1['Hora-Inicio'], errors='coerce', format='%H:%M:%S').dt.time
-data1['Hora-Fim'] = pd.to_datetime(data1['Hora-Fim'], errors='coerce', format='%H:%M:%S').dt.time
+# Nome do arquivo
+nome_arquivo = 'robo_apontamento_log.txt'
 
-# Diagnóstico após o tratamento
-print("Tipos de dados após tratamento:")
-print(data2.dtypes)
+# Palavras-chave que você quer buscar
+palavras_chave = ['erro', 'tentativa']
 
-print("\nValores das colunas 'Hora-Inicio' e 'Hora-Fim':")
-print(data1[['Hora-Inicio', 'Hora-Fim']].head(20))
+# Extrair as linhas que contêm as palavras-chave
+linhas_encontradas = extrair_linhas_com_palavras_chave(nome_arquivo, palavras_chave)
+
+# Exibir as linhas encontradas
+for linha in linhas_encontradas:
+    print(linha)
+

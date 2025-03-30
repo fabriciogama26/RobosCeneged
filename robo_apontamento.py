@@ -19,15 +19,19 @@ CHROMEDRIVER_PATH = "chromedriver-win64\chromedriver.exe"
 SITE_URL = "https://cenegedrj.gpm.srv.br/index.php"
 LOGIN_USUARIO = "FABRICIO.GAMA"
 SENHA_USUARIO = "115433397*"
+file_path = (r"E:\Fabrício\Trabalho\Ceneged\codigo ceneged\RobosCeneged\dados_apontamento_teste - Copia.xlsx")
 
 class Apontamento:
-    def __init__(self):
+    def __init__(self, file_path):
         """Inicializa o driver e configurações do navegador."""
         chrome_options = Options()
         chrome_options.add_experimental_option("detach", True)  # Mantém o navegador aberto
         chrome_options.add_argument("--disable-infobars")  # Remove barra de informações
         chrome_options.add_argument("--disable-notifications")  # Desabilita notificações
         chrome_options.add_argument("--start-maximized")  # Tenta iniciar maximizado
+
+        # Carregar a planilha
+        self.df = pd.read_excel(file_path)
 
         self.service = Service(CHROMEDRIVER_PATH)
         self.driver = webdriver.Chrome(service=self.service)
@@ -388,6 +392,92 @@ class Apontamento:
         except TimeoutException:
             self.log(f"Erro ao preencher o campo '{campo_id}'.")
 
+    def identificar_servicos_duplicados(self):
+        """
+        Identifica serviços duplicados para a mesma combinação de obra, data e equipe.
+        Se encontrar duplicatas, chama a função fechar().
+        
+        Returns:
+            bool: True se encontrou duplicatas, False caso contrário
+        """
+        try:
+            # Converte todos os valores para string antes de concatenar
+            self.df['chave'] = (
+                self.df['obras_chosen'].astype(str) + '_' + 
+                self.df['dat_srv'].astype(str) + '_' + 
+                self.df['equipe_chosen'].astype(str)
+            )
+            # Verifica duplicatas considerando a chave e o serviço
+            self.df['duplicado_servico'] = self.df.duplicated(
+                subset=['chave', 'serv_chosen'], 
+                keep=False
+            )
+            # Remove a coluna chave temporária
+            self.df.drop('chave', axis=1, inplace=True)
+            
+            # Verifica se há algum serviço duplicado
+            if self.df['duplicado_servico'].any():
+                self.log("Serviços duplicados encontrados.")
+                self.exibir_servicos_repetidos()  # Chama a função exibir_servicos_repetidos
+                self.fechar()  # Chama a função fechar() se encontrar duplicatas
+                return True
+            else:
+                self.log("Nenhum serviço duplicado encontrado.")
+                return False
+                
+        except Exception as e:
+            self.log(f"Erro ao identificar serviços duplicados: {str(e)}")
+            return False
+        
+    def exibir_servicos_repetidos(self):
+        """Exibe os serviços repetidos de forma formatada e organizada"""
+        try:
+            # Obtém os dados repetidos
+            df_repetidos = self._get_dados_repetidos()
+            
+            if df_repetidos.empty:
+                print("\nNenhum serviço duplicado encontrado.")
+                return
+            
+            print("\n=== SERVIÇOS DUPLICADOS ENCONTRADOS ===")
+            
+            # Exibe os serviços repetidos aonde _ é quebra de linha e row é uma linha
+            for _, row in df_repetidos.iterrows():
+                print(f"\nObra: {row['obra']}")
+                print(f"Data: {row['data']}")
+                print(f"Equipe: {row['equipe']}")
+                print("Serviços repetidos:")
+                
+                for servico, quantidade in row['vezes'].items():
+                    print(f"  - Código: {servico} (Repetido {quantidade} vezes)")
+                    self.log(f"Serviços repetidos: Obra: {row['obra']}\n - Data: {row['data']}\n - Equipe: {row['equipe']}\n  - Código: {servico} (Repetido {quantidade} vezes)")
+                    
+            print("\n" + "="*40 + "\n")
+            return True
+            
+        except Exception as e:
+            self.log(f"Erro ao exibir serviços duplicados: {str(e)}")
+            return False
+
+    def _get_dados_repetidos(self):
+        """Método auxiliar para obter os dados de serviços repetidos"""
+        grupos = self.df.groupby(['obras_chosen', 'dat_srv', 'equipe_chosen'])
+        
+        resultados = []
+        for nome, grupo in grupos:
+            contagem = grupo['serv_chosen'].value_counts()
+            repetidos = contagem[contagem > 1]
+            
+            if not repetidos.empty:
+                resultados.append({
+                    'obra': nome[0],
+                    'data': nome[1],
+                    'equipe': nome[2],
+                    'vezes': repetidos.to_dict()
+                })
+        
+        return pd.DataFrame(resultados)
+
     def fechar(self):
         """Finaliza o WebDriver."""
         try:
@@ -495,21 +585,18 @@ class Apontamento:
         except Exception as e:
             self.log(f"Erro ao salvar planilha mantendo a formatação: {e}")   
 
-    def executar_planilha(self, file_path):
+    def executar_planilha(self):
         """Executa as entradas da planilha com base em cabeçalhos e serviços."""
         try:
-            
 
-            # Carregar a planilha
-            df = pd.read_excel(file_path)
 
             # Verificar se as colunas 'status' e 'projeto' existem
-            if 'status' not in df.columns or 'obras_chosen' not in df.columns:
+            if 'status' not in self.df.columns or 'obras_chosen' not in self.df.columns:
                 self.log("Erro: A planilha não possui as colunas 'status' ou 'projeto'.")
                 return
 
             # Garantir que a coluna 'status' existe e preencher com None, caso esteja vazia
-            df['status'] = df['status'].fillna('')
+            self.df['status'] = self.df['status'].fillna('')
 
             # Definir as colunas de cabeçalho
             colunas_cabecalho = [
@@ -522,7 +609,7 @@ class Apontamento:
             ultimo_cabecalho = []
 
             # Criar uma cópia filtrada para processar apenas linhas pendentes
-            df_pendentes = df[df['status'] != 'ok'].copy()
+            df_pendentes = self.df[self.df['status'] != 'ok'].copy()
 
             # Iterar pelas linhas da planilha pendente
             for index, row in df_pendentes.iterrows():
@@ -559,11 +646,11 @@ class Apontamento:
                     self.log(f"Linha {index} processada com sucesso.")
 
                     # Atualizar o status na versão original do DataFrame
-                    df.at[row.name, 'status'] = 'ok'
+                    self.df.at[row.name, 'status'] = 'ok'
                     self.log(f"Status ok atualizado na linha {index}.")
 
                     # Salvar a planilha atualizada
-                    self.salvar_planilha_com_formatacao(df, file_path)
+                    self.salvar_planilha_com_formatacao(self.df, file_path)
                     self.log("Planilha salva com status atualizado.")
                     sleep(0.5)
                 except Exception as e:
@@ -575,7 +662,7 @@ class Apontamento:
             self.log("Último ciclo finalizado com sucesso.")
 
             # Salvar a planilha completa ao final
-            self.salvar_planilha_com_formatacao(df, file_path)
+            self.salvar_planilha_com_formatacao(self.df, file_path)
             self.log("Planilha salva com todos os status atualizados.")
 
         except Exception as e:
@@ -583,13 +670,14 @@ class Apontamento:
 
 # Execução do Script
 if __name__ == "__main__":
-    apontamento = Apontamento()
+    apontamento = Apontamento(file_path)
     try:
+        apontamento.identificar_servicos_duplicados()
         apontamento.login() 
         apontamento.botao_serviço()
         apontamento._acessar_iframes_lateral()
         apontamento._acessar_iframes_central()
-        apontamento.executar_planilha(r"C:\Users\fabriciogama\Downloads\Programas\Robo_apontamento\Cópia de dados_apontamento - barra mansa.xlsx")
+        apontamento.executar_planilha()
     except Exception as e:
         apontamento.log(f"Erro inesperado: {e}")
     finally:

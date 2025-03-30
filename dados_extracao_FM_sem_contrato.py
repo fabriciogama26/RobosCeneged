@@ -1,7 +1,6 @@
 import os
 import pandas as pd
 from datetime import datetime
-from thefuzz import process
 
 # Obter a data e hora atual no formato desejado (por exemplo: YYYY-MM-DD_HH-MM-SS)
 current_time = datetime.now().strftime("%d-%m-%Y_%Hh%M")
@@ -15,78 +14,11 @@ excel_files = [f for f in os.listdir(folder_path) if f.endswith('.xlsx') or f.en
 # Inicializar lista para armazenar os dados organizados
 final_data = []
 
-# Adicionar a lista personalizada de mapeamentos
-mapeamento_personalizado = {
-    "MAURICIO NASCIMENTO": "EX004",
-    "NATHAN PEREIRA": "MT009",
-    "MAURICIO MARQUES": "MT006",
-    "JEFFERSON JUNIOR": "EX017",
-    "JEFFERSON  JUNIOR": "EX017",
-    "JEFFERSON": "EX017",
-    "CAIQUE BRAZIEL TEODORO ALVES": "AV001",
-    "DANIEL ALVES DA SILVA CARDOSO": "AV002",
-    "MARCIO JUNIOR": "AV003",
-    "DEIVID LUIS": "EX013",
-    "DEIVID LUIZ": "EX013",
-    "LUCILIO RODRIGUES": "EX015",
-    "ROBERTO NASSAR": "EX011",
-    "ROBSON MARQUES": "EX012",
-    "FLAVIO GARCIA": "EX018",
-    "THIAGO LIMA": "EX001",
-    "LUIS CARLOS": "EX002",
-    "MARCELO DA ROCHA": "EX003",
-    "RAFAEL VICTOR": "EX005",
-    "JOSE HIPOLITO": "EX007",
-    "HIPÓLITO": "EX007",
-    "RAPHAEL CASEMIRO": "EX008",
-    "RAFAEL CASEMIRO": "EX008",
-    "MAX PAULO": "EX010",
-    "ROBERTO NASSAR": "EX011",
-    "ROBSON DA SILVA MARQUES": "EX012",
-    "DEIVID LUIZ": "EX013",
-    "JOSE ROBERTO": "EX014",
-    "LUCILIO RODRIGUES": "EX015",
-    "REGINALDO DE ANDRADE": "LV001",
-    "RICARDO ROBERTO": "LV003",
-    "WALBER SPINDOLA": "LV004",
-    "JORGE LEANDRO": "MT001",
-    "JOSE EDSON": "MT002",
-    "J. EDSON": "MT002",
-    "MARCEL DO CARMO": "MT003",
-    "EDUARDO MARTINS FERREIRA": "MT004",
-    "VINICIO JOSE": "MT005",
-    "VINICIO JOSÉ": "MT005",
-    "MAURILIO MARQUES": "MT007",
-    "WELLINGTON BARCELOS": "MT008",
-    "OTAVIO VELOSO ": "EX016",
-    "MAURICIO SILVA": "EX004",
-}
-
-# Função para encontrar a melhor correspondência aproximada
-def encontrar_correspondencia(nome, mapeamento, limite=50):
-
-    # Usar fuzzywuzzy para encontrar a melhor correspondência
-    melhor_correspondencia, pontuacao = process.extractOne(nome, mapeamento.keys())
-    # Retornar o código se a pontuação for maior que o limite
-    if pontuacao >= limite:
-        return mapeamento[melhor_correspondencia]
-    else:
-        return 'N/A'  # Caso não encontre uma correspondência válida
-    
-# Função para mapear nomes para códigos de equipe
-def mapear_equipe(nomes):
-    equipes = []
-    for nome in nomes.split('/'):
-        nome = nome.strip()
-        codigo = encontrar_correspondencia(nome, mapeamento_personalizado)
-        equipes.append(codigo)
-    return '/'.join(equipes), len(equipes)
-
 # Iterar sobre os arquivos Excel
 for file in excel_files:
     file_path = os.path.join(folder_path, file)  # Construir o caminho completo do arquivo
     print(f"Lendo arquivo: {file}")
-
+    
     try:
         # Ler a aba "Folha de Medição"
         data = pd.read_excel(file_path, sheet_name="Folha de Medição")
@@ -119,16 +51,14 @@ for file in excel_files:
         # Localizar início das seções "QTD", "Descrição do Serviço" , "Serviço" e "Total Valor"
         quantidade_start = data[data['Unnamed: 11'].astype(str).str.contains('QTD', na=False)].index
         descricao_start = data[data['Unnamed: 2'].astype(str).str.contains('Descrição do Serviço', na=False)].index
-        contratro_start = data[data['Unnamed: 6'].astype(str).str.contains('Centro', na=False)].index
         servico_start = data[data['Unnamed: 7'].astype(str).str.contains('Serviço', na=False)].index
         total_valor_start = data[data['Unnamed: 12'].astype(str).str.contains('Total Valor', na=False)].index
 
         # Verificar se as seções foram encontradas e extrair os valores correspondentes
-        if len(quantidade_start) > 0 and len(descricao_start) > 0 and len(servico_start) > 0 and len(total_valor_start) > 0 and len(contratro_start) > 0:
+        if len(quantidade_start) > 0 and len(descricao_start) > 0 and len(servico_start) > 0 and len(total_valor_start) > 0:
             # Extrair os valores das seções "QTD", "Descrição do Serviço" , "Serviço" e "Total Valor" a partir do início encontrado e remover linhas vazias
             quantidade_values = data.loc[quantidade_start[0] + 1:, 'Unnamed: 11'].dropna().reset_index(drop=True)
             descricao_values = data.loc[descricao_start[0] + 1:, 'Unnamed: 2'].dropna().reset_index(drop=True)
-            contrato_values = data.loc[contratro_start[0] + 1:, 'Unnamed: 6'].dropna().reset_index(drop=True)
             servico_values = data.loc[servico_start[0] + 1:, 'Unnamed: 7'].dropna().reset_index(drop=True)
             total_valor_values = data.loc[total_valor_start[0] + 1:, 'Unnamed: 12'].dropna().reset_index(drop=True)
 
@@ -159,13 +89,10 @@ for file in excel_files:
 
                 # Iterar sobre os valores extraídos e processar os dados
                 try:
-                    for i, (quantidade, descricao, contrato ,servico, total_valor) in enumerate(zip( quantidade_values, descricao_values, contrato_values, servico_values, total_valor_values)):
+                    for i, (quantidade, descricao,servico, total_valor) in enumerate(zip( quantidade_values, descricao_values, servico_values, total_valor_values)):
                         # Interromper processamento atual se encontrar células em branco
-                        if pd.isnull(quantidade) or pd.isnull(descricao) or pd.isnull(contrato) or pd.isnull(servico) or pd.isnull(total_valor) or quantidade == "" or descricao == "" or contrato == "" or servico == "" or total_valor == "":
+                        if pd.isnull(quantidade) or pd.isnull(descricao) or pd.isnull(servico) or pd.isnull(total_valor) or quantidade == "" or descricao == "" or servico == "" or total_valor == "":
                             break
-
-                        # Adicionar os dados processados à lista final
-                        codigos_equipe, num_equipes = mapear_equipe(origem_data['Encarregado'].dropna().iloc[6])
 
 
                         # Adicionar os dados processados à lista final
@@ -173,14 +100,11 @@ for file in excel_files:
                             'Projeto': origem_data['Projeto'].dropna().iloc[6],  # Primeiro valor válido de "Projeto"
                             'Data': origem_data['Data'].dropna().iloc[6],  # Primeiro valor válido de "Data"
                             'Folha de Medição': origem_data['Registro ( Nº FM)'].dropna().iloc[7],  # Primeiro valor válido de "Folha de Medição"
-                            'N de Equipes': num_equipes,  # Aqui vai o número de equipes mapeadas
-                            'Equipes': codigos_equipe,  # Primeiro valor valido de "Equipe"
-                            'Lider': origem_data['Encarregado'].dropna().iloc[6],  # Primeiro valor valido de "Equipe"
+                            'Equipe': origem_data['Encarregado'].dropna().iloc[6],  # Primeiro valor valido de "Equipe"
                             'Total Valor': total_valor,
                             'Descrição do Serviço': descricao,
                             'Quantidade': quantidade,
                             'Serviço': servico,
-                            'Contrato': contrato,
                             'Origem': origem
                         })
 
@@ -198,7 +122,7 @@ if final_data:
     final_df = pd.DataFrame(final_data)
 
     # Salvar o DataFrame final em um novo arquivo Excel
-    output_data = f"Folha_Medicao_Organizada_{current_time}.xlsx"
+    output_data = F"Folha_Medicao_Organizada_{current_time}.xlsx"
 
     # Salvar o DataFrame final em um novo arquivo Excel com o nome personalizado
     output_path = f"C:\\Users\\fabriciogama\\Downloads\\{output_data}"
@@ -231,7 +155,7 @@ try:
     
     # Exibir resultados de contagem de arquivos
     print(f"Quantidade de arquivos Excel na pasta: {num_arquivos_pasta}")
-    print(f"Quantidade de arquivos registrados no arquivo {output_data}_{current_time}: {num_arquivos_salvos}")
+    print(f"Quantidade de arquivos registrados no arquivo {output_data}: {num_arquivos_salvos}")
     
     # Exibir arquivos faltantes
     if arquivos_faltantes:
